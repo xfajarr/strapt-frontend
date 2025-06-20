@@ -235,6 +235,7 @@ const Home = () => {
               </div>
             ) : (
               <div className="space-y-3">
+                {/* Current Tokens */}
                 {tokens.filter(token => token.symbol === 'USDT' || token.symbol === 'USDC').map((token) => (
                   <div key={token.symbol} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -258,6 +259,73 @@ const Home = () => {
                     </div>
                   </div>
                 ))}
+
+                {/* Coming Soon Section */}
+                <div className="relative mt-4 pt-3 border-t border-border/50">
+                  <div className="relative">
+                    {/* Blur overlay */}
+                    <div className="absolute inset-0 bg-background/60 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                          Coming Soon
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">More tokens</p>
+                      </div>
+                    </div>
+
+                    {/* Blurred content underneath */}
+                    <div className="space-y-3 opacity-50">
+                      {/* DAI */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">DAI</span>
+                          </div>
+                          <div>
+                            <p className="font-medium">DAI</p>
+                            <p className="text-sm text-muted-foreground">Dai Stablecoin</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">0.00 DAI</p>
+                        </div>
+                      </div>
+
+                      {/* USDC.e */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">USDCe</span>
+                          </div>
+                          <div>
+                            <p className="font-medium">USDC.e</p>
+                            <p className="text-sm text-muted-foreground">Bridged USDC</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">0.00 USDC.e</p>
+                        </div>
+                      </div>
+
+                      {/* FRAX */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">FRAX</span>
+                          </div>
+                          <div>
+                            <p className="font-medium">FRAX</p>
+                            <p className="text-sm text-muted-foreground">Frax Stablecoin</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">0.00 FRAX</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>
