@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import QRCode from '@/components/QRCode';
 import QRCodeScanner from '@/components/QRCodeScanner';
 import { useAccount } from 'wagmi';
-import { useProtectedTransferV2 } from '@/hooks/use-protected-transfer-v2';
+import { useLinkTransfer } from '@/hooks/use-link-transfer';
 import { useConfetti } from '@/hooks/use-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -20,14 +20,14 @@ import dayjs from 'dayjs';
 interface TransferDetails {
   id: string;
   sender: string;
-  recipient: string;
+  recipient?: string; // Optional for LinkTransfer compatibility
   tokenAddress: string;
   tokenSymbol: string;
   amount: string;
   expiry: number;
   status: number;
   createdAt: number;
-  isLinkTransfer: boolean;
+  isLinkTransfer?: boolean; // Optional for LinkTransfer compatibility
   passwordProtected?: boolean; // For backward compatibility
 }
 
@@ -71,12 +71,12 @@ const Claims = () => {
   const isProcessingRef = useRef(false);
   const processedUrlRef = useRef<string>('');
 
-  // Get claim functions from useProtectedTransferV2
+  // Get claim functions from useLinkTransfer
   const {
     claimTransfer,
     isPasswordProtected,
     getTransferDetails,
-  } = useProtectedTransferV2();
+  } = useLinkTransfer();
 
   // Get confetti functions
   const { triggerClaimConfetti } = useConfetti();
@@ -147,14 +147,12 @@ const Claims = () => {
           setActiveTransfer({
             id: transferId,
             sender: details.sender,
-            recipient: details.recipient,
             tokenAddress: details.tokenAddress,
             tokenSymbol: details.tokenSymbol,
             amount: details.amount,
             expiry: details.expiry,
             status: details.status,
             createdAt: details.createdAt,
-            isLinkTransfer: details.isLinkTransfer,
             passwordProtected: true
           });
           setManualTransferId(transferId);
@@ -301,7 +299,7 @@ const Claims = () => {
 
       setActiveTransfer({
         ...details,
-        passwordProtected: isProtected
+        passwordProtected: isProtected > 0
       });
 
       if (isProtected) {
@@ -690,7 +688,6 @@ const Claims = () => {
             buttonText="Scan QR"
             buttonVariant="default"
             buttonSize="sm"
-            icon={<QrCode className="h-4 w-4 mr-2" />}
           />
         </div>
       </div>
@@ -792,7 +789,6 @@ const Claims = () => {
               buttonVariant="default"
               buttonSize="sm"
               buttonClassName="mt-4"
-              icon={<QrCode className="h-4 w-4 mr-2" />}
             />
           </div>
         </div>
@@ -809,7 +805,7 @@ const Claims = () => {
           {activeTransfer && (
             <div className="flex flex-col items-center space-y-2">
               <QRCode
-                value={`https://truststream.app/claim/${activeTransfer.id}${activeTransfer.passwordProtected ? `?code=${encodeURIComponent(claimCode || 'YOUR_CLAIM_CODE')}` : ''}`}
+                value={`https://strapt.vercel.app/claim/${activeTransfer.id}${activeTransfer.passwordProtected ? `?code=${encodeURIComponent(claimCode || 'YOUR_CLAIM_CODE')}` : ''}`}
                 size={256}
               />
               <p className="text-sm text-muted-foreground">
@@ -924,7 +920,7 @@ const Claims = () => {
                     return;
                   }
 
-                  setActiveTransfer({ ...details, passwordProtected: isProtected });
+                  setActiveTransfer({ ...details, passwordProtected: isProtected > 0 });
 
                   if (isProtected) {
                     if (!manualClaimCode) {

@@ -20,7 +20,7 @@ import ScheduledTransfers from '@/components/profile/ScheduledTransfers';
 import StreamForm from '@/components/streams/StreamForm';
 import ReceivedStats from '@/components/ReceivedStats';
 import { useTokenBalances } from '@/hooks/use-token-balances';
-import { usePaymentStream } from '@/hooks/use-payment-stream';
+
 import { useTransactionHistory } from '@/hooks/use-transaction-history';
 import { useDataContext } from '@/providers/DataProvider';
 
@@ -29,15 +29,14 @@ const Profile = () => {
     document.documentElement.classList.contains('dark')
   );
   const [showQR, setShowQR] = useState(false);
-  const [showCreateStream, setShowCreateStream] = useState(false);
-  const [isCreatingStream, setIsCreatingStream] = useState(false);
+
   const { toast } = useToast();
   const { address, connector } = useAccount();
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { tokens, isLoading: isLoadingTokens } = useTokenBalances();
-  const { createStream } = usePaymentStream();
+
   const { refreshAllData } = useDataContext();
 
   // Transaction history for funds received
@@ -64,46 +63,7 @@ const Profile = () => {
     navigate('/');
   };
 
-  const handleCreateStream = async (data: {
-    recipient: string;
-    tokenType: 'USDC' | 'IDRX';
-    amount: string;
-    durationInSeconds: number;
-    milestonePercentages: number[];
-    milestoneDescriptions: string[];
-  }) => {
-    try {
-      setIsCreatingStream(true);
-      await createStream(
-        data.recipient,
-        data.tokenType,
-        data.amount,
-        data.durationInSeconds,
-        data.milestonePercentages,
-        data.milestoneDescriptions
-      );
 
-      toast({
-        title: "Stream Created",
-        description: `Successfully started streaming ${data.amount} ${data.tokenType} to ${data.recipient}`,
-      });
-
-      // Close the create dialog
-      setShowCreateStream(false);
-
-      // Refresh all data
-      refreshAllData();
-    } catch (error) {
-      console.error('Error creating stream:', error);
-      toast({
-        title: "Error Creating Stream",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCreatingStream(false);
-    }
-  };
 
   const toggleTheme = () => {
     const newMode = !isDarkMode;
@@ -144,18 +104,7 @@ const Profile = () => {
       icon: Shield,
       onClick: () => console.log('Protected Transfers clicked'),
     },
-    {
-      id: 'streaming-payments',
-      title: 'Payment Streams',
-      icon: BarChart2,
-      onClick: () => navigate('/app/streams'),
-    },
-    {
-      id: 'create-stream',
-      title: 'Create Payment Stream',
-      icon: PlusCircle,
-      onClick: () => setShowCreateStream(true),
-    },
+
     {
       id: 'group-pools',
       title: 'Group Pools',
@@ -353,18 +302,7 @@ const Profile = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Create Stream Dialog */}
-      <Dialog open={showCreateStream} onOpenChange={setShowCreateStream}>
-        <DialogContent className={isMobile ? "sm:max-w-[95%] w-[95%] p-3 mx-auto rounded-xl" : "max-w-lg p-4"}>
-          <StreamForm
-            onCancel={() => setShowCreateStream(false)}
-            onSubmit={handleCreateStream}
-            isCreatingStream={isCreatingStream}
-            tokens={tokens}
-            isLoadingTokens={isLoadingTokens}
-          />
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 };

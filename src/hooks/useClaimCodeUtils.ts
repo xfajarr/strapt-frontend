@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { keccak256, toBytes } from 'viem';
+import { keccak256, toBytes, encodePacked } from 'viem';
 
 /**
  * Hook for claim code utilities
@@ -26,11 +26,13 @@ export function useClaimCodeUtils() {
    * @returns Hashed claim code as bytes32
    */
   const hashClaimCode = useCallback((claimCode: string): `0x${string}` => {
-    // Convert to uppercase and trim whitespace
-    const normalizedCode = claimCode.toUpperCase().trim();
+    // Trim whitespace but keep original case to match contract behavior
+    const normalizedCode = claimCode.trim();
 
-    // Hash the claim code using keccak256
-    return keccak256(toBytes(normalizedCode));
+    // Hash the claim code using keccak256 with abi.encodePacked equivalent
+    // This matches the contract's: keccak256(abi.encodePacked(claimCode))
+    // Use encodePacked to match Solidity's abi.encodePacked behavior
+    return keccak256(encodePacked(['string'], [normalizedCode]));
   }, []);
 
   /**
@@ -74,9 +76,10 @@ export function useClaimCodeUtils() {
    * @returns True if valid, false otherwise
    */
   const validateClaimCode = useCallback((claimCode: string): boolean => {
-    // Claim code should be 6 characters, alphanumeric
-    const regex = /^[A-Z0-9]{6}$/;
-    return regex.test(claimCode.toUpperCase().trim());
+    // Claim code should be alphanumeric, allow both upper and lower case
+    const trimmed = claimCode.trim();
+    const regex = /^[A-Za-z0-9]+$/;
+    return regex.test(trimmed) && trimmed.length >= 3 && trimmed.length <= 20;
   }, []);
 
   return {

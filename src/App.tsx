@@ -24,8 +24,7 @@ import DesktopLayout from "./components/DesktopLayout";
 const Index = lazy(() => import("./pages/Index"));
 const Home = lazy(() => import("./pages/Home"));
 const Transfer = lazy(() => import("./pages/Transfer"));
-const Streams = lazy(() => import("./pages/OptimizedStreams"));
-const AutoRefreshStreams = lazy(() => import("./pages/AutoRefreshStreams"));
+
 const Pools = lazy(() => import("./pages/Pools"));
 const StraptDrop = lazy(() => import("./pages/EnhancedStraptDrop"));
 const StraptDropClaim = lazy(() => import("./pages/EnhancedStraptDropClaim"));

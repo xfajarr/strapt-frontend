@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { TokenOption } from '@/components/TokenSelect';
-import { useProtectedTransferV2, TokenType } from '@/hooks/use-protected-transfer-v2';
+import { useLinkTransfer, TokenType } from '@/hooks/use-link-transfer';
 import { useTokenBalances } from '@/hooks/use-token-balances';
 import { useAccount } from 'wagmi';
 
@@ -19,7 +19,7 @@ export interface TransferState {
   transferType: TransferType;
   transferLink: string;
   grossAmount: string;
-  
+
   // Transaction state
   isLoading: boolean;
   isDirectTransferLoading: boolean;
@@ -63,7 +63,7 @@ const initialState: TransferState = {
   transferType: 'claim',
   transferLink: '',
   grossAmount: '',
-  
+
   isLoading: false,
   isDirectTransferLoading: false,
   isConfirmed: false,
@@ -145,14 +145,14 @@ const TransferStateContext = createContext<TransferStateContextType | undefined>
 // Create provider component
 export const TransferStateProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(transferReducer, initialState);
-  
+
   // Get account information
   const { address } = useAccount();
-  
+
   // Get token balances
   const { tokens, isLoading: isLoadingTokens } = useTokenBalances();
-  
-  // Use the Protected Transfer V2 hook
+
+  // Use the LinkTransfer hook
   const {
     isLoading: isTransferLoading,
     isConfirmed,
@@ -163,82 +163,82 @@ export const TransferStateProvider = ({ children }: { children: ReactNode }) => 
     generateClaimCode,
     checkAllowance,
     USDC_ADDRESS,
-    IDRX_ADDRESS,
-  } = useProtectedTransferV2();
-  
+    USDT_ADDRESS,
+  } = useLinkTransfer();
+
   // Set initial selected token when tokens are loaded
   useEffect(() => {
     if (tokens.length > 0 && !state.selectedToken) {
       dispatch({ type: 'SET_SELECTED_TOKEN', payload: tokens[0] });
     }
   }, [tokens, state.selectedToken]);
-  
+
   // Helper function to format timeout - always returns 24 hours
   const formatTimeout = () => {
     return "24 hours";
   };
-  
+
   // Helper function to shorten transfer ID for display
   const shortenTransferId = (id: string | null) => {
     if (!id) return '';
     return id.length > 16 ? `${id.slice(0, 8)}...${id.slice(-8)}` : id;
   };
-  
+
   // Helper function to get token type from selected token
   const getTokenType = (): TokenType => {
-    return (state.selectedToken?.symbol as TokenType) || 'IDRX';
+    return (state.selectedToken?.symbol as TokenType) || 'USDT';
   };
-  
+
   // Helper function to get token address from selected token
   const getTokenAddress = (): `0x${string}` => {
-    return state.selectedToken?.symbol === 'USDC' ? USDC_ADDRESS : IDRX_ADDRESS;
+    return state.selectedToken?.symbol === 'USDC' ? USDC_ADDRESS : USDT_ADDRESS;
   };
-  
+
   // Helper function to get expiry timestamp (24 hours from now)
   const getExpiryTimestamp = (): number => {
     return Math.floor(Date.now() / 1000) + 86400; // 24 hours in seconds
   };
-  
+
   // Implementation of contract interaction functions
   // These would be implemented with the actual contract calls
   // For now, we'll just provide the function signatures
-  
+
   // Create a protected transfer
   const createProtectedTransfer = async (): Promise<boolean | undefined> => {
     // Implementation would go here
     return true;
   };
-  
+
   // Create a protected link transfer
   const createProtectedLinkTransfer = async (): Promise<boolean | undefined> => {
     // Implementation would go here
     return true;
   };
-  
+
   // Claim a protected transfer
   const claimProtectedTransfer = async (transferId: string, claimCode: string): Promise<boolean> => {
     // Implementation would go here
     return true;
   };
-  
+
   // Claim a protected link transfer
   const claimProtectedLinkTransfer = async (transferId: string): Promise<boolean> => {
     // Implementation would go here
     return true;
   };
-  
+
   // Refund a protected transfer
   const refundProtectedTransfer = async (transferId: string): Promise<boolean> => {
     // Implementation would go here
     return true;
   };
-  
+
   // Approve token for transfer
   const approveToken = async (): Promise<boolean> => {
     // Implementation would go here
     return true;
   };
-  
+
   return (
     <TransferStateContext.Provider
       value={{

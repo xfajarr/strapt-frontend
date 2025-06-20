@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTokenBalances } from '@/hooks/useTokenUtils';
-import { usePaymentStream, StreamStatus } from '@/hooks/use-payment-stream';
+
 import { cn } from '@/lib/utils';
 import QRCode from '@/components/QRCode';
 import QRCodeScanner from '@/components/QRCodeScanner';
@@ -94,22 +94,9 @@ const OptimizedProfile = () => {
   // Get token balances
   const { isLoading: isLoadingTokens, idrxBalance } = useTokenBalances();
 
-  // Get user streams
-  const { useUserStreams } = usePaymentStream();
-  const { streams, isLoading: isLoadingStreams } = useUserStreams(address);
 
-  // Count active streams
-  const [activeStreamsCount, setActiveStreamsCount] = useState(0);
 
-  // Update active streams count when streams change
-  useEffect(() => {
-    if (streams) {
-      const activeCount = streams.filter(stream =>
-        stream.status === StreamStatus.Active
-      ).length;
-      setActiveStreamsCount(activeCount);
-    }
-  }, [streams]);
+
 
   const truncatedAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected';
 

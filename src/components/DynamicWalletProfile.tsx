@@ -37,7 +37,7 @@ const DynamicWalletProfile = () => {
 
   // Available networks
   const networks = [
-    { ...liskSepolia, name: 'Lisk Sepolia' },
+    { ...mantleSepoliaTestnet, name: 'Mantle Sepolia' },
     { ...baseSepolia, name: 'Base Sepolia' },
   ];
 

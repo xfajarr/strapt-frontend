@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDynamicWallet } from './use-dynamic-wallet';
 import { useSentTransfersData, useReceivedTransfersData } from '@/services/TransfersDataService';
-import { useStreamsData } from '@/services/StreamsDataService';
+
 import { useStraptDrop } from './use-strapt-drop';
 
 // Define the activity type
 export interface ProfileActivity {
   id: string;
-  type: 'transfer' | 'claim' | 'stream' | 'pool' | 'drop';
+  type: 'transfer' | 'claim' | 'pool' | 'drop';
   title: string;
   amount: string;
   status: 'completed' | 'pending' | 'active' | 'failed';
@@ -16,7 +16,7 @@ export interface ProfileActivity {
 
 /**
  * Hook to get profile activity data
- * Combines data from transfers, streams, and drops
+ * Combines data from transfers and drops
  * Optimized for faster loading with reduced initial data
  */
 export function useProfileActivity() {
@@ -28,8 +28,7 @@ export function useProfileActivity() {
   const { transfers: sentTransfers, isLoading: isSentLoading } = useSentTransfersData();
   const { transfers: receivedTransfers, isLoading: isReceivedLoading } = useReceivedTransfersData();
 
-  // Get streams data - only load if needed
-  const { streams, isLoading: isStreamsLoading } = useStreamsData();
+
 
   // Get STRAPT drops data - lazy load
   const { getUserCreatedDrops, isLoadingUserDrops } = useStraptDrop();
@@ -42,7 +41,7 @@ export function useProfileActivity() {
       if (!address || dropsLoaded) return;
 
       // Only load drops after other data is loaded to improve initial performance
-      if (!isSentLoading && !isReceivedLoading && !isStreamsLoading) {
+      if (!isSentLoading && !isReceivedLoading) {
         try {
           const userDrops = await getUserCreatedDrops();
           setDrops(userDrops || []);
@@ -56,7 +55,7 @@ export function useProfileActivity() {
     };
 
     fetchDrops();
-  }, [address, getUserCreatedDrops, dropsLoaded, isSentLoading, isReceivedLoading, isStreamsLoading]);
+  }, [address, getUserCreatedDrops, dropsLoaded, isSentLoading, isReceivedLoading]);
 
   // Combine all activity data
   useEffect(() => {
@@ -68,7 +67,7 @@ export function useProfileActivity() {
       }
 
       // Check if all data is loaded
-      if (isSentLoading || isReceivedLoading || isStreamsLoading || isLoadingUserDrops) {
+      if (isSentLoading || isReceivedLoading || isLoadingUserDrops) {
         return;
       }
 
@@ -104,31 +103,7 @@ export function useProfileActivity() {
         });
       }
 
-      // Add streams
-      if (streams && streams.length > 0) {
-        streams.forEach(stream => {
-          // Ensure we have a valid streamId for unique keys
-          const streamId = stream.streamId || `${stream.sender}-${stream.recipient}-${stream.startTime}`;
 
-          // Format the amount properly
-          const formattedAmount = stream.totalAmount
-            ? `${stream.totalAmount} ${stream.tokenSymbol || 'tokens'}`
-            : `0 ${stream.tokenSymbol || 'tokens'}`;
-
-          allActivities.push({
-            id: `stream-${streamId}`,
-            type: 'stream',
-            title: stream.sender === address
-              ? `Stream payment to ${stream.recipient.slice(0, 6)}...${stream.recipient.slice(-4)}`
-              : `Stream payment from ${stream.sender.slice(0, 6)}...${stream.sender.slice(-4)}`,
-            amount: formattedAmount,
-            status: stream.status === 'Active' ? 'active' :
-                   stream.status === 'Completed' ? 'completed' :
-                   stream.status === 'Cancelled' ? 'failed' : 'pending',
-            timestamp: new Date(Number(stream.startTime) * 1000).toISOString(),
-          });
-        });
-      }
 
       // Add drops
       if (drops && drops.length > 0) {
@@ -158,11 +133,9 @@ export function useProfileActivity() {
     address,
     sentTransfers,
     receivedTransfers,
-    streams,
     drops,
     isSentLoading,
     isReceivedLoading,
-    isStreamsLoading,
     isLoadingUserDrops
   ]);
 

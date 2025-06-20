@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
-import { liskSepolia, baseSepolia, mantleSepoliaTestnet } from "viem/chains";
+import { mantleSepoliaTestnet, baseSepolia } from "viem/chains";
 
 // Environment variables
 const DYNAMIC_ENVIRONMENT_ID = import.meta.env.VITE_DYNAMIC_ENVIRONMENT_ID || "1e5413fb-7769-4e12-af13-324cec213c51";
@@ -13,10 +13,9 @@ const WALLET_CONNECT_PROJECT_ID = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID
 // Create wagmi config for Dynamic
 // Note: multiInjectedProviderDiscovery is set to false as Dynamic implements this itself
 export const config = createConfig({
-  chains: [liskSepolia, mantleSepoliaTestnet, baseSepolia],
+  chains: [mantleSepoliaTestnet, baseSepolia],
   multiInjectedProviderDiscovery: false,
   transports: {
-    [liskSepolia.id]: http(),
     [mantleSepoliaTestnet.id]: http(),
     [baseSepolia.id]: http(),
   },

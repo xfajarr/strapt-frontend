@@ -1,5 +1,4 @@
-import { initDataSubscriptionService, refreshData, setRefreshHandler, type DataType } from './DataSubscriptionService';
-import { initStreamsDataService, fetchStreamsData } from './StreamsDataService';
+import { initDataSubscriptionService, setRefreshHandler, type DataType } from './DataSubscriptionService';
 import { initTokenBalanceService, fetchTokenBalances } from './TokenBalanceService';
 import { initTransfersDataService, fetchTransfersData } from './TransfersDataService';
 
@@ -18,7 +17,6 @@ export const initDataServices = () => {
   initDataSubscriptionService();
 
   // Initialize individual data services
-  initStreamsDataService();
   initTokenBalanceService();
   initTransfersDataService();
 
@@ -40,9 +38,6 @@ const registerRefreshHandlers = () => {
     console.log(`Refreshing data for ${dataType}`);
 
     switch (dataType) {
-      case 'streams':
-        fetchStreamsData();
-        break;
       case 'tokens':
         fetchTokenBalances();
         break;
@@ -67,11 +62,6 @@ export const refreshAllData = () => {
   }
 
   // Refresh all data types with error handling
-  try {
-    fetchStreamsData();
-  } catch (error) {
-    console.error('Error refreshing streams data:', error);
-  }
 
   try {
     fetchTokenBalances();
@@ -87,7 +77,6 @@ export const refreshAllData = () => {
 };
 
 // Export all the hooks from the individual services
-export { useStreamsData } from './StreamsDataService';
 export { useTokenBalancesData } from './TokenBalanceService';
 export { useSentTransfersData, useReceivedTransfersData } from './TransfersDataService';
 export { useDataSubscription } from './DataSubscriptionService';

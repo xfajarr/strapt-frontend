@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   Home,
   ArrowUp,
-  BarChart2,
   Users,
   Bell,
   Shield,
@@ -22,7 +21,6 @@ import { ThemeToggleSimple } from '@/components/ui/theme-toggle';
 
 const DesktopLayout = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const path = location.pathname.split('/')[2] || '';
   const [showFaucet, setShowFaucet] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -30,7 +28,6 @@ const DesktopLayout = () => {
   const navItems = [
     { name: 'Home', path: '', icon: Home },
     { name: 'Transfer', path: 'transfer', icon: ArrowUp },
-    { name: 'Pay Streams', path: 'streams', icon: BarChart2 },
     { name: 'STRAPT Drop', path: 'strapt-drop', icon: Users },
     { name: 'Claims', path: 'claims', icon: Shield },
     { name: 'Savings', path: 'savings', icon: Wallet },

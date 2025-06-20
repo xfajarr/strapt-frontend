@@ -1,29 +1,13 @@
 {
-  "ProtectedTransferV2": {
-    "address": "0x33665BB084Eb3a01aA2E4eCE2FAd292dCe683e34",
+  "LinkTransfer": {
+    "address": "0xFdE24D7B91fE89819313339fF2Fe9351b404379f",
     "network": "mantleSepoliaTestnet",
     "supportedTokens": {
       "USDC": "0xf6f8CF56DF9caD9Cd2248A566755b8d0e56a5bEe",
       "USDT": "0x14E8799ae8Da79229990c9d5fBBA993dD663739C"
     },
-    "feeInBasisPoints": 0
-  },
-  "ProtectedTransfer": {
-    "address": "0x225f179c0d57c3DF357f802BB40d5a4BeaFb4F0C",
-    "network": "mantleSepoliaTestnet",
-    "supportedTokens": {
-      "USDC": "0xf6f8CF56DF9caD9Cd2248A566755b8d0e56a5bEe",
-      "USDT": "0x14E8799ae8Da79229990c9d5fBBA993dD663739C"
-    }
-  },
-  "PaymentStream": {
-    "address": "0xDFa0a6101f25630d3122e1b6b34590848ba35402",
-    "network": "mantleSepoliaTestnet",
-    "supportedTokens": {
-      "USDC": "0xf6f8CF56DF9caD9Cd2248A566755b8d0e56a5bEe",
-      "USDT": "0x14E8799ae8Da79229990c9d5fBBA993dD663739C"
-    },
-    "feeInBasisPoints": 20
+    "feeInBasisPoints": 10,
+    "feeCollector": "0x02cAf2aE3CA81dC0b5cF7B846625B5A4f07bBbcb"
   },
   "StraptDrop": {
     "address": "0x3d183CDCbF78BA6e39eb0e51C44d233265786e0A",

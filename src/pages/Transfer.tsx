@@ -127,7 +127,7 @@ const TransferContent = () => {
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="send" className="flex items-center gap-2">
               <Send className="h-4 w-4" />
-              <span>Direct Transfer</span>
+              <span>Secure Transfer</span>
             </TabsTrigger>
             <TabsTrigger value="claim" className="flex items-center gap-2">
               <QrCode className="h-4 w-4" />

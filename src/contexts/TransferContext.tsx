@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { TokenOption } from '@/components/TokenSelect';
-import { useProtectedTransferV2, TokenType } from '@/hooks/use-protected-transfer-v2';
+import { useLinkTransfer, TokenType } from '@/hooks/use-link-transfer';
 import { useTokenBalances } from '@/hooks/use-token-balances';
 import { toast } from 'sonner';
 import { writeContract, waitForTransactionReceipt } from 'wagmi/actions';
@@ -89,10 +89,10 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
   // Get real token balances
   const { tokens, isLoading: isLoadingTokens } = useTokenBalances();
   const [selectedToken, setSelectedToken] = useState<TokenOption>({
-    symbol: 'IDRX',
-    name: 'IDRX Token',
+    symbol: 'USDT',
+    name: 'Tether USD',
     balance: 0,
-    icon: '/IDRX BLUE COIN.svg',
+    icon: '/assets/tether-usdt-seeklogo.svg',
   });
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
   const [isApproved, setIsApproved] = useState(false);
   const [isDirectTransferLoading, setIsDirectTransferLoading] = useState(false);
 
-  // Use the Protected Transfer V2 hook
+  // Use the LinkTransfer hook
   const {
     isLoading,
     isConfirmed,
@@ -119,9 +119,9 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
     generateClaimCode,
     checkAllowance,
     USDC_ADDRESS,
-    IDRX_ADDRESS,
+    USDT_ADDRESS,
     isPasswordProtected,
-  } = useProtectedTransferV2();
+  } = useLinkTransfer();
 
   // Format timeout for display - always returns 24 hours
   const formatTimeout = () => {
@@ -141,12 +141,12 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
 
   // Get token type from selected token
   const getTokenType = (): TokenType => {
-    return selectedToken.symbol === 'USDC' ? 'USDC' : 'IDRX';
+    return selectedToken.symbol === 'USDC' ? 'USDC' : 'USDT';
   };
 
   // Get token address from selected token
   const getTokenAddress = (): `0x${string}` => {
-    return selectedToken.symbol === 'USDC' ? USDC_ADDRESS : IDRX_ADDRESS;
+    return selectedToken.symbol === 'USDC' ? USDC_ADDRESS : USDT_ADDRESS;
   };
 
   // Validate amount before transfer
@@ -194,7 +194,7 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
       // First check if we already have sufficient allowance
       // This avoids unnecessary approval transactions
       try {
-        const hasAllowance = await checkAllowance(getTokenType(), amount, address);
+        const hasAllowance = await checkAllowance(getTokenType(), amount);
         if (hasAllowance) {
           console.log('Sufficient allowance already exists');
           setIsApproved(true);
@@ -209,11 +209,11 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
       // Get token ABI based on selected token
       const tokenABI = selectedToken.symbol === 'USDC'
         ? (await import('@/contracts/MockUSDC.json')).default.abi
-        : (await import('@/contracts/IDRX.json')).default.abi;
+        : (await import('@/contracts/MockUSDT.json')).default.abi;
 
       // Parse amount with correct decimals
       const { parseUnits } = await import('viem');
-      const decimals = selectedToken.symbol === 'USDC' ? 6 : 2;
+      const decimals = selectedToken.symbol === 'USDC' ? 6 : 6; // Both USDC and USDT have 6 decimals
 
       // Use a much larger approval amount to avoid frequent re-approvals
       // For safety, we'll approve for a large amount (1,000,000 tokens)
@@ -223,8 +223,8 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
       // Get token address
       const tokenAddress = getTokenAddress();
 
-      // Get protected transfer contract address
-      const protectedTransferAddress = (await import('@/contracts/contract-config.json')).default.ProtectedTransferV2.address as `0x${string}`;
+      // Get LinkTransfer contract address
+      const linkTransferAddress = (await import('@/contracts/contract-config.json')).default.LinkTransfer.address as `0x${string}`;
 
       try {
         console.log('Approving token for maximum allowance');
@@ -235,7 +235,7 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
         const hash = await writeContract(config, {
           abi: tokenABI,
           functionName: 'approve',
-          args: [protectedTransferAddress, maxApproval],
+          args: [linkTransferAddress, maxApproval],
           address: tokenAddress,
           account: address,
           chain: config.chains[0], // Use the first chain in the config
@@ -312,11 +312,11 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
           // Get token ABI based on selected token
           const tokenABI = selectedToken.symbol === 'USDC'
             ? (await import('@/contracts/MockUSDC.json')).default.abi
-            : (await import('@/contracts/IDRX.json')).default.abi;
+            : (await import('@/contracts/MockUSDT.json')).default.abi;
 
           // Parse amount with correct decimals
           const { parseUnits } = await import('viem');
-          const decimals = selectedToken.symbol === 'USDC' ? 6 : 2;
+          const decimals = selectedToken.symbol === 'USDC' ? 6 : 6; // Both USDC and USDT have 6 decimals
           const parsedAmount = parseUnits(amount, decimals);
 
           // Get token address
@@ -342,7 +342,7 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
               description: `Transaction: ${hash}`,
               action: {
                 label: 'View on Explorer',
-                onClick: () => window.open(`https://sepolia-blockscout.lisk.com/tx/${hash}`, '_blank')
+                onClick: () => window.open(`https://explorer.sepolia.mantle.xyz/tx/${hash}`, '_blank')
               }
             });
 
@@ -374,13 +374,8 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
       // Use custom password if withPassword is true, otherwise generate a random one
       const customPassword = withPassword && password ? password : null;
 
-      // Create the protected transfer
-      // For Link/QR transfers, recipient can be empty
-      // This fixes type error by checking string values, not enum types
-      const recipientAddress = recipient || '0x0000000000000000000000000000000000000000';
-
-      const result = await createDirectTransfer(
-        recipientAddress,
+      // Create the link transfer
+      const result = await createLinkTransfer(
         getTokenType(),
         amount,
         expiryTimestamp,
@@ -593,7 +588,8 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
       console.log('Using claim code:', trimmedCode, 'length:', trimmedCode.length);
 
       // Attempt to claim the transfer
-      return await claimTransfer(id, trimmedCode);
+      const result = await claimTransfer(id, trimmedCode);
+      return !!result; // Convert to boolean
     } catch (error) {
       console.error('Error claiming transfer:', error);
 
@@ -638,7 +634,8 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
       // Check if this transfer requires a password
       let requiresPassword = false;
       try {
-        requiresPassword = await isPasswordProtected(id);
+        const passwordStatus = await isPasswordProtected(id);
+        requiresPassword = passwordStatus > 0; // Convert number to boolean
         console.log('Transfer requires password:', requiresPassword);
       } catch (checkError) {
         console.error('Error checking if transfer requires password:', checkError);
@@ -649,7 +646,8 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
       if (!requiresPassword) {
         console.log('Attempting to claim non-password protected transfer');
         // Pass an empty string as the claim code - this will skip simulation in the claimTransfer function
-        return await claimTransfer(id, '');
+        const result = await claimTransfer(id, '');
+        return !!result; // Convert to boolean
       } else {
         // For password-protected transfers, notify the user
         console.log('Transfer is password-protected, notifying user');
@@ -687,7 +685,8 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
   // Refund a protected transfer
   const refundProtectedTransfer = async (id: string) => {
     try {
-      return await refundTransfer(id);
+      const result = await refundTransfer(id);
+      return !!result; // Convert to boolean
     } catch (error) {
       console.error('Error refunding transfer:', error);
 

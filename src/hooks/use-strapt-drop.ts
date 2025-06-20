@@ -29,7 +29,7 @@ import { config } from '@/providers/DynamicProvider';
 import StraptDropABI from '@/contracts/StraptDrop.json';
 import contractConfig from '@/contracts/contract-config.json';
 import USDCABI from '@/contracts/MockUSDC.json';
-import IDRXABI from '@/contracts/IDRX.json';
+import USDTABI from '@/contracts/MockUSDT.json';
 import { useDynamicWallet } from './use-dynamic-wallet';
 import { useTokenBalances } from './use-token-balances';
 
@@ -39,7 +39,7 @@ const USDC_ADDRESS = contractConfig.StraptDrop.supportedTokens.USDC as `0x${stri
 const IDRX_ADDRESS = contractConfig.StraptDrop.supportedTokens.IDRX as `0x${string}`;
 
 // Token types
-export type TokenType = 'USDC' | 'IDRX';
+export type TokenType = 'USDC' | 'USDT';
 
 // Drop info type
 export interface DropInfo {
@@ -137,7 +137,7 @@ export function useStraptDrop() {
       const expiryTime = BigInt(Math.floor(Date.now() / 1000) + (expiryHours * 3600));
 
       // First approve the token transfer
-      const tokenABI = tokenType === 'IDRX' ? IDRXABI.abi : USDCABI.abi;
+      const tokenABI = tokenType === 'USDT' ? USDTABI.abi : USDCABI.abi;
 
       // Check allowance
       console.log('Checking allowance...');

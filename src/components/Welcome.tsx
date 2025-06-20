@@ -41,12 +41,7 @@ const Welcome: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="transfers">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="transfers">Protected Transfers</TabsTrigger>
-            <TabsTrigger value="streams">Payment Streams</TabsTrigger>
-          </TabsList>
-          <TabsContent value="transfers" className="mt-4">
+        <div className="mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <h3 className="text-lg font-medium flex items-center gap-2">
@@ -87,51 +82,7 @@ const Welcome: React.FC = () => {
                 </ol>
               </div>
             </div>
-          </TabsContent>
-          <TabsContent value="streams" className="mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Continuous Payment Streams
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Stream tokens continuously over time to recipients with full control.
-                </p>
-                <ul className="text-sm space-y-2 mt-2">
-                  <li className="flex items-start gap-2">
-                    <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Tokens stream in real-time to recipients</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Milestone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Add milestones for project-based payments</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ArrowRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Pause, resume, or cancel streams anytime</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CircleDollarSign className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Recipients can claim tokens at any time</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="bg-secondary/30 rounded-lg p-4">
-                <h4 className="font-medium mb-2">How to use Payment Streams:</h4>
-                <ol className="text-sm space-y-2 list-decimal pl-5">
-                  <li>Connect your wallet</li>
-                  <li>Go to the Streams page</li>
-                  <li>Click "New Stream" to create a payment stream</li>
-                  <li>Enter recipient address, amount, and duration</li>
-                  <li>Add optional milestones if needed</li>
-                  <li>Approve and confirm the transaction</li>
-                  <li>Manage your streams from the Streams page</li>
-                </ol>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+        </div>
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline" onClick={handleDismiss}>

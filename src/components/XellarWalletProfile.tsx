@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { Network, LogOut, Copy, ExternalLink, Wallet, Check, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useConfig, useChainId, useSwitchChain, useBalance } from 'wagmi';
-import { liskSepolia, mantleSepoliaTestnet } from 'viem/chains';
+import { mantleSepoliaTestnet } from 'viem/chains';
 import InfoTooltip from '@/components/InfoTooltip';
 import { formatBalanceWithoutDecimals } from '@/utils/format-utils';
 
@@ -38,8 +38,7 @@ const XellarWalletProfile = () => {
 
   // Available networks
   const networks = [
-    { ...liskSepolia, name: 'Lisk Sepolia' },
-    { ...mantleSepoliaTestnet, name: 'Mantle Sepolia' },
+    { ...mantleSepoliaTestnet, name: 'Mantle Sepolia' }
   ];
 
   // If not logged in, show connect button
