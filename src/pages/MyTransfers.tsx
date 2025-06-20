@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, RefreshCw, Clock, AlertTriangle } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, RefreshCw, Clock, AlertTriangle, XCircle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,7 +27,7 @@ const MyTransfers = () => {
   const [refundingTransfers, setRefundingTransfers] = useState<Set<string>>(new Set());
 
   // Load user's transfers
-  const loadTransfers = async () => {
+  const loadTransfers = useCallback(async () => {
     if (!address) return;
 
     try {
@@ -64,7 +64,7 @@ const MyTransfers = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [address, getTransfersBySender, getTransferDetails, toast]);
 
   // Handle refund
   const handleRefund = async (transfer: LinkTransfer, isInstant: boolean = false) => {
@@ -101,7 +101,7 @@ const MyTransfers = () => {
   // Load transfers on mount and when address changes
   useEffect(() => {
     loadTransfers();
-  }, [address]);
+  }, [address, loadTransfers]);
 
   // Get status info for display
   const getStatusInfo = (transfer: LinkTransfer) => {

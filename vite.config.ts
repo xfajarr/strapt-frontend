@@ -23,8 +23,14 @@ export default defineConfig(({ mode }) => ({
       '@dynamic-labs/wagmi-connector',
       'wagmi',
       'viem',
+      'viem/chains',
+      'viem/utils',
       '@tanstack/react-query'
     ],
+    exclude: ['ccip'],
     force: true
+  },
+  define: {
+    global: 'globalThis',
   },
 }));

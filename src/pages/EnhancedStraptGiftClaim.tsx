@@ -83,7 +83,17 @@ const EnhancedStraptGiftClaim = () => {
         }
       } catch (error) {
         console.error('Error loading gift info:', error);
-        setError('Failed to load gift information');
+
+        // Handle specific error types
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+        if (errorMessage.includes('Gift not found')) {
+          setError('Gift not found. This gift may have been created on a previous version of the contract or the ID is invalid.');
+        } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+          setError('Network error. Please check your internet connection and try again.');
+        } else {
+          setError('Failed to load gift information');
+        }
       }
     };
 
@@ -320,15 +330,30 @@ const EnhancedStraptGiftClaim = () => {
           <Card className="border border-destructive/20 shadow-md overflow-hidden">
             <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 sm:px-6 text-center">
               <AlertTriangle className="h-16 w-16 text-destructive mb-6" />
-              <h2 className="text-xl font-medium mb-3">Gift Not Found</h2>
+              <h2 className="text-xl font-medium mb-3">
+                {error.includes('Gift not found') ? 'Gift Not Found' : 'Error Loading Gift'}
+              </h2>
               <p className="text-base text-muted-foreground mb-8 max-w-md">
-                The STRAPT Gift you're looking for doesn't exist or has been removed
+                {error.includes('Gift not found')
+                  ? 'This gift may have been created on a previous version of the contract, or the gift ID is invalid.'
+                  : error
+                }
               </p>
-              <Button
-                onClick={() => navigate('/app/strapt-gift')}
-              >
-                Create a New Gift
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/app/strapt-gift')}
+                >
+                  Create a New Gift
+                </Button>
+                {error.includes('network') && (
+                  <Button
+                    onClick={() => window.location.reload()}
+                  >
+                    Try Again
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         </motion.div>

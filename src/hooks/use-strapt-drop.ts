@@ -26,7 +26,7 @@ import { parseUnits, decodeEventLog } from 'viem';
 import { toast } from 'sonner';
 import { readContract, simulateContract, writeContract, waitForTransactionReceipt, getAccount } from 'wagmi/actions';
 import { config } from '@/providers/DynamicProvider';
-import StraptGiftABI from '@/contracts/StraptGift.json';
+import StraptGiftABI from '@/contracts/StraptDrop.json';
 import contractConfig from '@/contracts/contract-config.json';
 import USDCABI from '@/contracts/MockUSDC.json';
 import USDTABI from '@/contracts/MockUSDT.json';

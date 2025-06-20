@@ -20,9 +20,11 @@ import WalletCheck from './components/WalletCheck';
 import Layout from "./components/Layout";
 import DesktopLayout from "./components/DesktopLayout";
 
-// Lazy load all page components to reduce initial bundle size
+// Import Home eagerly to fix dynamic import issue
+import Home from "./pages/Home";
+
+// Lazy load other page components to reduce initial bundle size
 const Index = lazy(() => import("./pages/Index"));
-const Home = lazy(() => import("./pages/Home"));
 const Transfer = lazy(() => import("./pages/Transfer"));
 
 const Pools = lazy(() => import("./pages/Pools"));
@@ -69,11 +71,7 @@ const App = () => {
                   {/* Protected routes require wallet connection */}
                   <Route element={<WalletCheck />}>
                     <Route path="app" element={isMobile ? <Layout /> : <DesktopLayout />}>
-                      <Route index element={
-                        <Suspense fallback={<PageLoading />}>
-                          <Home />
-                        </Suspense>
-                      } />
+                      <Route index element={<Home />} />
                       <Route path="transfer" element={
                         <Suspense fallback={<PageLoading />}>
                           <Transfer />

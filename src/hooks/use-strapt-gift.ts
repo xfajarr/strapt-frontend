@@ -3,7 +3,7 @@ import { parseUnits, decodeEventLog } from 'viem';
 import { toast } from 'sonner';
 import { readContract, simulateContract, writeContract, waitForTransactionReceipt, getAccount } from 'wagmi/actions';
 import { config } from '@/providers/DynamicProvider';
-import StraptGiftABI from '@/contracts/StraptGift.json';
+import StraptGiftABI from '@/contracts/StraptDrop.json';
 import contractConfig from '@/contracts/contract-config.json';
 import USDCABI from '@/contracts/MockUSDC.json';
 import USDTABI from '@/contracts/MockUSDT.json';
@@ -42,7 +42,7 @@ interface EventArgs {
 }
 
 interface GiftCreatedArgs extends EventArgs {
-  giftId: `0x${string}`;
+  dropId: `0x${string}`;
   creator: `0x${string}`;
   tokenAddress: `0x${string}`;
   totalAmount: bigint;
@@ -52,7 +52,7 @@ interface GiftCreatedArgs extends EventArgs {
 }
 
 interface GiftClaimedArgs extends EventArgs {
-  giftId: `0x${string}`;
+  dropId: `0x${string}`;
   recipient: `0x${string}`;
   amount: bigint;
 }
@@ -183,7 +183,7 @@ export function useStraptGift() {
       const { request: createRequest } = await simulateContract(config, {
         address: STRAPT_GIFT_ADDRESS,
         abi: StraptGiftABI,
-        functionName: 'createGift',
+        functionName: 'createDrop',
         args: [tokenAddress, amountInUnits, BigInt(recipients), isRandom, expiryTime, message],
         account: account.address,
       });
@@ -198,10 +198,13 @@ export function useStraptGift() {
       const createReceipt = await waitForTransactionReceipt(config, { hash: createHash });
       console.log('Create gift transaction confirmed:', createReceipt);
 
-      // Find the GiftCreated event to get the gift ID
-      let giftId: `0x${string}` | null = null;
+      // Find the DropCreated event to get the drop ID
+      let dropId: `0x${string}` | null = null;
 
       const logs = createReceipt.logs || [];
+      console.log('Parsing transaction logs for DropCreated event...');
+      console.log('Total logs found:', logs.length);
+
       for (const log of logs) {
         try {
           const event = decodeEventLog({
@@ -210,27 +213,30 @@ export function useStraptGift() {
             topics: log.topics,
           });
 
-          if (event.eventName === 'GiftCreated') {
+          console.log('Decoded event:', event.eventName, event.args);
+
+          if (event.eventName === 'DropCreated') {
             const args = event.args as unknown as GiftCreatedArgs;
-            giftId = args.giftId;
+            dropId = args.dropId;
+            console.log('Found DropCreated event with dropId:', dropId);
             break;
           }
         } catch (e) {
           // Skip logs that can't be decoded
+          console.log('Could not decode log:', e);
         }
       }
 
-      if (!giftId) {
-        // If we couldn't find the gift ID in the logs, generate a random one
-        giftId = `0x${Array.from({length: 64}, () =>
-          Math.floor(Math.random() * 16).toString(16)).join('')}` as `0x${string}`;
-        console.warn('Could not find gift ID in logs, using generated ID:', giftId);
+      if (!dropId) {
+        console.error('Could not find DropCreated event in transaction logs');
+        console.error('Available logs:', logs.map(log => ({ address: log.address, topics: log.topics })));
+        throw new Error('Failed to extract drop ID from transaction. The gift may not have been created successfully.');
       }
 
-      setCurrentGiftId(giftId);
+      setCurrentGiftId(dropId);
       toast.success('STRAPT Gift created successfully!');
 
-      return { giftId, transactionHash: createHash };
+      return { giftId: dropId, transactionHash: createHash };
     } catch (error) {
       console.error('Error creating gift:', error);
       toast.error('Failed to create STRAPT Gift');
@@ -243,14 +249,14 @@ export function useStraptGift() {
   };
 
   // Claim tokens from a STRAPT Gift
-  const claimGift = async (giftId: string) => {
+  const claimGift = async (dropId: string) => {
     try {
       setIsLoading(true);
       setIsClaiming(true);
 
-      // Validate gift ID format
-      if (!giftId || !giftId.startsWith('0x') || giftId.length !== 66) {
-        throw new Error(`Invalid gift ID format: ${giftId}. Expected a 66-character hex string starting with 0x.`);
+      // Validate drop ID format
+      if (!dropId || !dropId.startsWith('0x') || dropId.length !== 66) {
+        throw new Error(`Invalid drop ID format: ${dropId}. Expected a 66-character hex string starting with 0x.`);
       }
 
       if (!isLoggedIn || !address) {
@@ -270,8 +276,8 @@ export function useStraptGift() {
       const { request: claimRequest } = await simulateContract(config, {
         address: STRAPT_GIFT_ADDRESS,
         abi: StraptGiftABI,
-        functionName: 'claimGift',
-        args: [giftId as `0x${string}`],
+        functionName: 'claimDrop',
+        args: [dropId as `0x${string}`],
         account: account.address,
       });
 
@@ -285,9 +291,10 @@ export function useStraptGift() {
       const claimReceipt = await waitForTransactionReceipt(config, { hash: claimHash });
       console.log('Claim transaction confirmed:', claimReceipt);
 
-      // Find the GiftClaimed event to get the claimed amount
+      // Find the DropClaimed event to get the claimed amount
       let claimedAmount: bigint = BigInt(0);
 
+      console.log('Parsing claim transaction logs for DropClaimed event...');
       for (const log of claimReceipt.logs) {
         try {
           const event = decodeEventLog({
@@ -296,13 +303,17 @@ export function useStraptGift() {
             topics: log.topics,
           });
 
-          if (event.eventName === 'GiftClaimed') {
+          console.log('Decoded claim event:', event.eventName, event.args);
+
+          if (event.eventName === 'DropClaimed') {
             const args = event.args as unknown as GiftClaimedArgs;
             claimedAmount = args.amount;
+            console.log('Found DropClaimed event with amount:', claimedAmount.toString());
             break;
           }
         } catch (e) {
           // Skip logs that can't be decoded
+          console.log('Could not decode claim log:', e);
         }
       }
 
@@ -313,7 +324,25 @@ export function useStraptGift() {
       return claimedAmount;
     } catch (error) {
       console.error('Error claiming gift:', error);
-      toast.error('Failed to claim STRAPT Gift');
+
+      // Handle specific error messages
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      if (errorMessage.includes('DropNotFound()')) {
+        toast.error('Gift not found. This gift may have been created on a previous version of the contract.');
+      } else if (errorMessage.includes('DropNotActive()')) {
+        toast.error('This gift is no longer active.');
+      } else if (errorMessage.includes('DropExpired()')) {
+        toast.error('This gift has expired.');
+      } else if (errorMessage.includes('AlreadyClaimed()')) {
+        toast.error('You have already claimed from this gift.');
+      } else if (errorMessage.includes('AllClaimsTaken()')) {
+        toast.error('All claims from this gift have been taken.');
+      } else if (errorMessage.includes('Failed to fetch dynamically imported module')) {
+        toast.error('Development server error. Please restart the server and try again.');
+      } else {
+        toast.error('Failed to claim STRAPT Gift');
+      }
       throw error;
     } finally {
       setIsLoading(false);
@@ -322,18 +351,39 @@ export function useStraptGift() {
   };
 
   // Get gift information
-  const getGiftInfo = async (giftId: string): Promise<GiftInfo | null> => {
+  const getGiftInfo = async (dropId: string): Promise<GiftInfo | null> => {
     try {
-      if (!giftId || !giftId.startsWith('0x') || giftId.length !== 66) {
-        throw new Error(`Invalid gift ID format: ${giftId}`);
+      if (!dropId || !dropId.startsWith('0x') || dropId.length !== 66) {
+        throw new Error(`Invalid drop ID format: ${dropId}`);
+      }
+
+      console.log('Getting gift info for dropId:', dropId);
+      console.log('Contract address:', STRAPT_GIFT_ADDRESS);
+      console.log('ABI type:', typeof StraptGiftABI, Array.isArray(StraptGiftABI));
+
+      // First, let's try to check if the contract exists by calling a simple function
+      try {
+        // Try to call a simple view function first to test connectivity
+        const feePercentage = await readContract(config, {
+          address: STRAPT_GIFT_ADDRESS,
+          abi: StraptGiftABI,
+          functionName: 'feePercentage',
+          args: [],
+        });
+        console.log('Contract connectivity test successful, fee percentage:', feePercentage);
+      } catch (connectivityError) {
+        console.error('Contract connectivity test failed:', connectivityError);
+        throw new Error('Contract not found or not accessible at the specified address');
       }
 
       const result = await readContract(config, {
         address: STRAPT_GIFT_ADDRESS,
         abi: StraptGiftABI,
-        functionName: 'getGiftInfo',
-        args: [giftId as `0x${string}`],
+        functionName: 'getDropInfo',
+        args: [dropId as `0x${string}`],
       });
+
+      console.log('Contract call result:', result);
 
       const [creator, tokenAddress, totalAmount, remainingAmount, claimedCount, totalRecipients, isRandom, expiryTime, message, isActive] = result as [
         `0x${string}`,
@@ -366,14 +416,48 @@ export function useStraptGift() {
       };
     } catch (error) {
       console.error('Error getting gift info:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        cause: error instanceof Error ? error.cause : undefined,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+
+      // Handle specific contract errors
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+
+        // Check for DropNotFound error
+        if (errorMessage.includes('DropNotFound()')) {
+          console.error('Gift not found in contract. This could be because:');
+          console.error('1. The gift ID is invalid or malformed');
+          console.error('2. The gift was created on a different contract');
+          console.error('3. The gift has been deleted or never existed');
+          throw new Error('Gift not found. This gift may have been created on a previous version of the contract or the ID is invalid.');
+        }
+
+        // Check for module loading error
+        if (errorMessage.includes('Failed to fetch dynamically imported module')) {
+          console.error('This appears to be a Vite development server issue. Try:');
+          console.error('1. Restart the development server');
+          console.error('2. Clear the browser cache');
+          console.error('3. Delete node_modules/.vite and restart');
+          throw new Error('Development server module loading error. Please restart the server.');
+        }
+
+        // Check for network/connectivity issues
+        if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+          throw new Error('Network error. Please check your internet connection and try again.');
+        }
+      }
+
       return null;
     }
   };
 
   // Check if an address has already claimed from a gift
-  const hasAddressClaimed = async (giftId: string, userAddress?: string): Promise<boolean> => {
+  const hasAddressClaimed = async (dropId: string, userAddress?: string): Promise<boolean> => {
     try {
-      if (!giftId || !giftId.startsWith('0x') || giftId.length !== 66) {
+      if (!dropId || !dropId.startsWith('0x') || dropId.length !== 66) {
         return false;
       }
 
@@ -382,14 +466,14 @@ export function useStraptGift() {
         return false;
       }
 
-      const claimedAmount = await readContract(config, {
+      const hasClaimed = await readContract(config, {
         address: STRAPT_GIFT_ADDRESS,
         abi: StraptGiftABI,
-        functionName: 'getClaimedAmount',
-        args: [giftId as `0x${string}`, addressToCheck as `0x${string}`],
-      }) as bigint;
+        functionName: 'hasAddressClaimed',
+        args: [dropId as `0x${string}`, addressToCheck as `0x${string}`],
+      }) as boolean;
 
-      return claimedAmount > BigInt(0);
+      return hasClaimed;
     } catch (error) {
       console.error('Error checking if address has claimed:', error);
       return false;
@@ -397,13 +481,13 @@ export function useStraptGift() {
   };
 
   // Refund an expired gift
-  const refundExpiredGift = async (giftId: string) => {
+  const refundExpiredGift = async (dropId: string) => {
     try {
       setIsLoading(true);
       setIsRefunding(true);
 
-      if (!giftId || !giftId.startsWith('0x') || giftId.length !== 66) {
-        throw new Error(`Invalid gift ID format: ${giftId}`);
+      if (!dropId || !dropId.startsWith('0x') || dropId.length !== 66) {
+        throw new Error(`Invalid drop ID format: ${dropId}`);
       }
 
       if (!isLoggedIn || !address) {
@@ -423,8 +507,8 @@ export function useStraptGift() {
       const { request: refundRequest } = await simulateContract(config, {
         address: STRAPT_GIFT_ADDRESS,
         abi: StraptGiftABI,
-        functionName: 'refundExpiredGift',
-        args: [giftId as `0x${string}`],
+        functionName: 'refundExpiredDrop',
+        args: [dropId as `0x${string}`],
         account: account.address,
       });
 

@@ -10,8 +10,9 @@ import { useDynamicWallet } from '@/hooks/use-dynamic-wallet';
 import { useStraptGift } from '@/hooks/use-strapt-gift';
 import type { TokenType } from '@/hooks/use-strapt-gift';
 import { useTokenBalances } from '@/hooks/use-token-balances';
+import { useConfetti } from '@/hooks/use-confetti';
 import { Loading } from '@/components/ui/loading';
-import { Gift, AlertTriangle, Check, Share2, QrCode, Shuffle, Coins, Clock, ChevronLeft, Copy } from 'lucide-react';
+import { Gift, AlertTriangle, Check, Share2, QrCode, Shuffle, Coins, Clock, ChevronLeft, Copy, PartyPopper } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import QRCode from '@/components/QRCode';
 import { generateGiftClaimLink } from '@/utils/qr-code-utils';
@@ -25,6 +26,7 @@ const EnhancedStraptGift = () => {
   const { isLoggedIn, address } = useDynamicWallet();
   const { createGift, isLoading, isApproving, isCreating, currentGiftId } = useStraptGift();
   const { tokens } = useTokenBalances();
+  const { triggerCelebrationConfetti } = useConfetti();
 
   // Form state
   const [tokenType, setTokenType] = useState<TokenType>('USDC');
@@ -62,8 +64,13 @@ const EnhancedStraptGift = () => {
       const link = generateGiftClaimLink(currentGiftId);
       setGiftLink(link);
       setShowSuccess(true);
+
+      // Trigger celebration confetti animation
+      setTimeout(() => {
+        triggerCelebrationConfetti();
+      }, 300); // Small delay to let dialog appear first
     }
-  }, [currentGiftId]);
+  }, [currentGiftId, triggerCelebrationConfetti]);
 
   const validateForm = () => {
     const newErrors: {
@@ -99,7 +106,7 @@ const EnhancedStraptGift = () => {
     }
 
     try {
-      await createGift(
+      const result = await createGift(
         tokenType,
         amount,
         Number.parseInt(recipients),
@@ -107,6 +114,14 @@ const EnhancedStraptGift = () => {
         expiryHours,
         "" // Empty message
       );
+
+      // Show success toast with celebration
+      if (result) {
+        toast.success('🎉 STRAPT Gift Created Successfully!', {
+          description: `${amount} ${tokenType} distributed to ${recipients} recipients`,
+          duration: 5000,
+        });
+      }
     } catch (error) {
       console.error('Error creating gift:', error);
     }
@@ -295,28 +310,145 @@ const EnhancedStraptGift = () => {
             </CardContent>
 
             <CardFooter className="flex justify-end pt-2 pb-6 px-6 border-t border-border">
-              <Button
-                onClick={handleCreateGift}
-                disabled={isLoading || isApproving || isCreating}
-                className="min-w-32"
+              <motion.div
+                whileHover={!isLoading && !isApproving && !isCreating ? { scale: 1.02 } : {}}
+                whileTap={!isLoading && !isApproving && !isCreating ? { scale: 0.98 } : {}}
+                className="relative"
               >
-                {isApproving ? (
-                  <>
-                    <Loading size="sm" className="mr-2" />
-                    Approving...
-                  </>
-                ) : isCreating ? (
-                  <>
-                    <Loading size="sm" className="mr-2" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Gift className="h-4 w-4 mr-2" />
-                    Create Gift
-                  </>
-                )}
-              </Button>
+                <Button
+                  onClick={handleCreateGift}
+                  disabled={isLoading || isApproving || isCreating}
+                  className={cn(
+                    "min-w-32 relative overflow-hidden transition-all duration-300",
+                    (isLoading || isApproving || isCreating) && "cursor-not-allowed"
+                  )}
+                >
+                  {/* Loading Background Animation */}
+                  <AnimatePresence>
+                    {(isApproving || isCreating) && (
+                      <motion.div
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        exit={{ x: "100%" }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  {/* Button Content */}
+                  <div className="relative z-10 flex items-center">
+                    {isApproving ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }}
+                          className="mr-2"
+                        >
+                          <Loading size="sm" />
+                        </motion.div>
+                        <motion.span
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          Approving...
+                        </motion.span>
+                      </>
+                    ) : isCreating ? (
+                      <>
+                        <motion.div
+                          animate={{
+                            rotate: 360,
+                            scale: [1, 1.1, 1]
+                          }}
+                          transition={{
+                            rotate: {
+                              duration: 1,
+                              repeat: Infinity,
+                              ease: "linear"
+                            },
+                            scale: {
+                              duration: 0.8,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }
+                          }}
+                          className="mr-2"
+                        >
+                          <Loading size="sm" />
+                        </motion.div>
+                        <motion.span
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="relative"
+                        >
+                          Creating
+                          <motion.span
+                            animate={{ opacity: [0, 1, 0] }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            ...
+                          </motion.span>
+                        </motion.span>
+                      </>
+                    ) : (
+                      <>
+                        <motion.div
+                          whileHover={{
+                            rotate: [0, -10, 10, 0],
+                            scale: [1, 1.1, 1]
+                          }}
+                          transition={{ duration: 0.3 }}
+                          className="mr-2"
+                        >
+                          <Gift className="h-4 w-4" />
+                        </motion.div>
+                        <motion.span
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          Create Gift
+                        </motion.span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Pulse Effect for Loading States */}
+                  <AnimatePresence>
+                    {(isApproving || isCreating) && (
+                      <motion.div
+                        initial={{ scale: 1, opacity: 0.5 }}
+                        animate={{
+                          scale: [1, 1.05, 1],
+                          opacity: [0.5, 0.8, 0.5]
+                        }}
+                        exit={{ scale: 1, opacity: 0 }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                        className="absolute inset-0 bg-primary/10 rounded-md"
+                      />
+                    )}
+                  </AnimatePresence>
+                </Button>
+              </motion.div>
             </CardFooter>
           </Card>
         </motion.div>
@@ -325,20 +457,73 @@ const EnhancedStraptGift = () => {
       {/* Success Dialog */}
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
         <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-          <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                <Check className="h-5 w-5 text-green-500" />
-              </div>
-              STRAPT Gift Created!
-            </DialogTitle>
-            <DialogDescription className="text-base pt-2">
-              Your STRAPT Gift has been created successfully. Share the link with recipients.
-            </DialogDescription>
-          </DialogHeader>
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <DialogHeader className="p-6 pb-2">
+              <DialogTitle className="flex items-center gap-3 text-xl">
+                <motion.div
+                  className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 flex items-center justify-center"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.4, duration: 0.3 }}
+                  >
+                    <Check className="h-6 w-6 text-green-500" />
+                  </motion.div>
+                </motion.div>
+                <motion.div
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                  className="flex items-center gap-2"
+                >
+                  STRAPT Gift Created!
+                  <motion.div
+                    animate={{
+                      rotate: [0, 10, -10, 10, 0],
+                      scale: [1, 1.1, 1, 1.1, 1]
+                    }}
+                    transition={{
+                      delay: 0.6,
+                      duration: 0.6,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <PartyPopper className="h-5 w-5 text-amber-500" />
+                  </motion.div>
+                </motion.div>
+              </DialogTitle>
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+              >
+                <DialogDescription className="text-base pt-2">
+                  Your STRAPT Gift has been created successfully. Share the link with recipients.
+                </DialogDescription>
+              </motion.div>
+            </DialogHeader>
+          </motion.div>
 
-          <div className="px-6 py-4 space-y-4">
-            <div className="flex items-center space-x-2">
+          <motion.div
+            className="px-6 py-4 space-y-4"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.4 }}
+          >
+            <motion.div
+              className="flex items-center space-x-2"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.3 }}
+            >
               <Input
                 readOnly
                 value={giftLink}
@@ -347,59 +532,93 @@ const EnhancedStraptGift = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={handleCopyLink}
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={handleCopyLink}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Copy link</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </div>
+            </motion.div>
 
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setShowQR(true)}
-                className="w-full sm:w-auto"
+            <motion.div
+              className="flex justify-center"
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.9, duration: 0.3 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <QrCode className="h-4 w-4 mr-2" />
-                Show QR Code
-              </Button>
-            </div>
-          </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowQR(true)}
+                  className="w-full sm:w-auto"
+                >
+                  <QrCode className="h-4 w-4 mr-2" />
+                  Show QR Code
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
-          <DialogFooter className="px-6 py-4 border-t border-border">
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-between">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowSuccess(false);
-                  navigate('/app/strapt-gift/my-gifts');
-                }}
-                className="w-full sm:w-auto order-2 sm:order-1"
-              >
-                View My Gifts
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowSuccess(false);
-                  setTokenType('USDC');
-                  setAmount('');
-                  setRecipients('10');
-                  setIsRandomDistribution(false);
-                }}
-                className="w-full sm:w-auto order-1 sm:order-2"
-              >
-                Create Another Gift
-              </Button>
-            </div>
-          </DialogFooter>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 1.0, duration: 0.4 }}
+          >
+            <DialogFooter className="px-6 py-4 border-t border-border">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-between">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto order-2 sm:order-1"
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowSuccess(false);
+                      navigate('/app/strapt-gift/my-gifts');
+                    }}
+                    className="w-full"
+                  >
+                    View My Gifts
+                  </Button>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto order-1 sm:order-2"
+                >
+                  <Button
+                    onClick={() => {
+                      setShowSuccess(false);
+                      setTokenType('USDC');
+                      setAmount('');
+                      setRecipients('10');
+                      setIsRandomDistribution(false);
+                    }}
+                    className="w-full"
+                  >
+                    <Gift className="h-4 w-4 mr-2" />
+                    Create Another Gift
+                  </Button>
+                </motion.div>
+              </div>
+            </DialogFooter>
+          </motion.div>
         </DialogContent>
       </Dialog>
 
