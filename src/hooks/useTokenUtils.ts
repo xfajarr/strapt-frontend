@@ -219,7 +219,7 @@ export function useTokenUtils() {
 export function useTokenBalances() {
   const { address, isConnected } = useAccount();
   const [tokens, setTokens] = useState<TokenOption[]>([
-    { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/tether-usdt-logo.svg' },
+    { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/assets/tether-usdt-seeklogo.svg' },
     { symbol: 'USDC', name: 'USD Coin', balance: 0, icon: '/usd-coin-usdc-logo.svg' },
   ]);
   const [isLoading, setIsLoading] = useState(true);
@@ -263,7 +263,7 @@ export function useTokenBalances() {
   const memoizedTokens = useMemo(() => {
     if (!isConnected) {
       return [
-        { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/tether-usdt-logo.svg' },
+        { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/assets/tether-usdt-seeklogo.svg' },
         { symbol: 'USDC', name: 'USD Coin', balance: 0, icon: '/usd-coin-usdc-logo.svg' },
       ];
     }
@@ -291,7 +291,7 @@ export function useTokenBalances() {
         symbol: 'USDT',
         name: 'Tether USD',
         balance: usdtValue,
-        icon: '/tether-usdt-logo.svg'
+        icon: '/assets/tether-usdt-seeklogo.svg'
       },
       {
         symbol: 'USDC',

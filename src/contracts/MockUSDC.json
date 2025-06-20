@@ -1,5 +1,5 @@
 {
-  "address": "0xe0ADeAd4878594D38c6e640E081738eCDF052854",
+  "address": "0xf6f8CF56DF9caD9Cd2248A566755b8d0e56a5bEe",
   "abi": [
     {
       "type": "constructor",
@@ -92,8 +92,8 @@
       "outputs": [
         {
           "name": "",
-          "type": "uint256",
-          "internalType": "uint256"
+          "type": "string",
+          "internalType": "string"
         }
       ],
       "stateMutability": "view"
@@ -320,8 +320,8 @@
       "outputs": [
         {
           "name": "",
-          "type": "uint256",
-          "internalType": "uint256"
+          "type": "string",
+          "internalType": "string"
         }
       ],
       "stateMutability": "view"

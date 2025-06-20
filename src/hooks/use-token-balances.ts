@@ -25,12 +25,12 @@ if (!isValidAddress(USDC_ADDRESS) || !isValidAddress(USDT_ADDRESS)) {
 export function useTokenBalances() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  
+
   const isCorrectNetwork = chainId === MANTLE_SEPOLIA_CHAIN_ID;
   const shouldFetchBalances = isConnected && isCorrectNetwork;
 
   const [tokens, setTokens] = useState<TokenOption[]>([
-    { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/tether-usdt-logo.svg' },
+    { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/assets/tether-usdt-seeklogo.svg' },
     { symbol: 'USDC', name: 'USD Coin', balance: 0, icon: '/usd-coin-usdc-logo.svg' },
   ]);
   const [error, setError] = useState<string | null>(null);
@@ -60,10 +60,10 @@ export function useTokenBalances() {
   }), [shouldFetchBalances]);
 
   // Get USDC balance
-  const { 
-    data: usdcBalance, 
-    isLoading: isLoadingUsdc, 
-    error: usdcError 
+  const {
+    data: usdcBalance,
+    isLoading: isLoadingUsdc,
+    error: usdcError
   } = useBalance({
     address: address,
     token: USDC_ADDRESS,
@@ -71,10 +71,10 @@ export function useTokenBalances() {
   });
 
   // Get USDT balance
-  const { 
-    data: usdtBalance, 
-    isLoading: isLoadingUsdt, 
-    error: usdtError 
+  const {
+    data: usdtBalance,
+    isLoading: isLoadingUsdt,
+    error: usdtError
   } = useBalance({
     address: address,
     token: USDT_ADDRESS,
@@ -86,19 +86,19 @@ export function useTokenBalances() {
   // Handle errors
   useEffect(() => {
     let errorMessage = null;
-    
+
     if (usdcError) {
       console.error('USDC Balance Error:', usdcError);
       errorMessage = `Failed to fetch USDC balance: ${usdcError.message}`;
     }
-    
+
     if (usdtError) {
       console.error('USDT Balance Error:', usdtError);
-      errorMessage = errorMessage 
+      errorMessage = errorMessage
         ? `${errorMessage}; Failed to fetch USDT balance: ${usdtError.message}`
         : `Failed to fetch USDT balance: ${usdtError.message}`;
     }
-    
+
     setError(errorMessage);
   }, [usdcError, usdtError]);
 
@@ -112,7 +112,7 @@ export function useTokenBalances() {
   useEffect(() => {
     if (!isConnected) {
       setTokens([
-        { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/tether-usdt-logo.svg' },
+        { symbol: 'USDT', name: 'Tether USD', balance: 0, icon: '/assets/tether-usdt-seeklogo.svg' },
         { symbol: 'USDC', name: 'USD Coin', balance: 0, icon: '/usd-coin-usdc-logo.svg' },
       ]);
       setError(null);
@@ -139,7 +139,7 @@ export function useTokenBalances() {
             symbol: 'USDT',
             name: 'Tether USD',
             balance: usdtFormatted,
-            icon: '/tether-usdt-logo.svg'
+            icon: '/assets/tether-usdt-seeklogo.svg'
           },
           {
             symbol: 'USDC',
@@ -150,7 +150,7 @@ export function useTokenBalances() {
         ];
 
         // Only update if balances actually changed
-        const hasChanged = prevTokens.some((token, index) => 
+        const hasChanged = prevTokens.some((token, index) =>
           token.balance !== newTokens[index].balance
         );
 
@@ -158,11 +158,11 @@ export function useTokenBalances() {
       });
     }
   }, [
-    isConnected, 
-    isCorrectNetwork, 
-    isLoading, 
-    usdcBalance, 
-    usdtBalance, 
+    isConnected,
+    isCorrectNetwork,
+    isLoading,
+    usdcBalance,
+    usdtBalance,
     formatBalance
   ]);
 

@@ -42,8 +42,8 @@ export const checkMultipleContracts = async (addresses: `0x${string}`[]) => {
 // Quick test function you can call from console
 export const testContracts = async () => {
   const addresses = [
-    '0xe0ADeAd4878594D38c6e640E081738eCDF052854', // MockUSDC
-    '0x5bF229Cb7654663804Ca0aCb80B5eeEA890B1638', // MockUSDT
+    '0xf6f8CF56DF9caD9Cd2248A566755b8d0e56a5bEe', // MockUSDC
+    '0x14E8799ae8Da79229990c9d5fBBA993dD663739C', // MockUSDT
   ] as `0x${string}`[];
 
   console.log('🔍 Checking contracts on Mantle Sepolia...');

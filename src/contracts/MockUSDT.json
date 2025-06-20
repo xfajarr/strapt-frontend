@@ -1,8 +1,23 @@
 {
-  "address": "0x5bF229Cb7654663804Ca0aCb80B5eeEA890B1638",
+  "address": "0x14E8799ae8Da79229990c9d5fBBA993dD663739C",
   "abi": [
 	{
 		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "symbol",
+				"type": "string"
+			},
+			{
+				"internalType": "uint8",
+				"name": "decimals_",
+				"type": "uint8"
+			},
 			{
 				"internalType": "uint256",
 				"name": "initialSupply",
@@ -305,9 +320,9 @@
 		"name": "balanceOfFormatted",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "",
-				"type": "uint256"
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -444,9 +459,9 @@
 		"name": "totalSupplyFormatted",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "",
-				"type": "uint256"
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",

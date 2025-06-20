@@ -17,7 +17,7 @@ export const config = createConfig({
   multiInjectedProviderDiscovery: false,
   transports: {
     [liskSepolia.id]: http(),
-    [mantleSepoliaTestnet.id]: http("https://rpc.sepolia.mantle.xyz"),
+    [mantleSepoliaTestnet.id]: http(),
     [baseSepolia.id]: http(),
   },
 }) as Config;

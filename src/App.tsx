@@ -12,7 +12,6 @@ import { AppStateProvider } from './state/AppStateContext';
 import { TransferStateProvider } from './state/TransferStateContext';
 import { DataProvider } from './providers/DataProvider';
 import TransactionDetector from './components/TransactionDetector';
-import { DynamicLoadingStates } from './components/DynamicLoadingStates';
 
 // Import WalletCheck eagerly as it's needed for route protection
 import WalletCheck from './components/WalletCheck';
@@ -52,7 +51,6 @@ const App = () => {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="strapt-theme">
       <DynamicProvider>
-        <DynamicLoadingStates>
           <AppStateProvider>
             <TransferStateProvider>
               <TooltipProvider>
@@ -79,16 +77,6 @@ const App = () => {
                       <Route path="transfer" element={
                         <Suspense fallback={<PageLoading />}>
                           <Transfer />
-                        </Suspense>
-                      } />
-                      <Route path="streams" element={
-                        <Suspense fallback={<PageLoading />}>
-                          <AutoRefreshStreams />
-                        </Suspense>
-                      } />
-                      <Route path="streams-old" element={
-                        <Suspense fallback={<PageLoading />}>
-                          <Streams />
                         </Suspense>
                       } />
                       <Route path="savings" element={
@@ -145,7 +133,6 @@ const App = () => {
                 </TooltipProvider>
             </TransferStateProvider>
           </AppStateProvider>
-        </DynamicLoadingStates>
       </DynamicProvider>
     </ThemeProvider>
   );

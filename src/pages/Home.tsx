@@ -2,20 +2,18 @@ import {
   ArrowDown,
   ArrowUp,
   PlusCircle,
-  BarChart2,
   QrCode,
   UserPlus,
   Copy,
   Droplets,
   CreditCard,
-  DollarSign,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 import QuickAction from "@/components/QuickAction";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
-  DialogContent,  
+  DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -30,13 +28,11 @@ import QRCode from "@/components/QRCode";
 import QRCodeScanner from "@/components/QRCodeScanner";
 import { useDynamicWallet } from "@/hooks/use-dynamic-wallet";
 import { useTokenBalances } from "@/hooks/use-token-balances";
-import { useChainId, useConfig } from "wagmi";
-import { formatUnits } from "viem";
+
 import BalanceSkeleton from "@/components/skeletons/BalanceSkeleton";
-import { formatBalanceWithoutDecimals } from "@/utils/format-utils";
+
 import { useUSDCFaucet } from "@/hooks/use-usdc-faucet";
 import toast from "@/utils/toast-deduplication";
-import ContractDebugger from "@/components/ContractDebugger";
 
 const Home = () => {
   const { isLoggedIn, address } = useDynamicWallet();
@@ -45,15 +41,8 @@ const Home = () => {
     'usdt': 1.0 // USDT is pegged to USD
   });
 
-  // Use updated wagmi hooks for current network
-  const chainId = useChainId();
-  const config = useConfig();
-
   // Get token balances
-  const { tokens, isLoading, usdcBalance, usdtBalance } = useTokenBalances();
-
-  // Get the current chain information
-  const currentChain = config.chains.find(c => c.id === chainId);
+  const { tokens, isLoading } = useTokenBalances();
 
   // Fetch token prices - simplified for demo
   useEffect(() => {
@@ -72,18 +61,7 @@ const Home = () => {
     return balance * price;
   };
 
-  // Format balance with proper decimals
-  const formatBalance = (
-    balance: bigint | undefined,
-    decimals: number,
-    precision = 2
-  ): string => {
-    if (!balance) return "0";
-    const raw = Number(formatUnits(balance, decimals));
-    return raw.toFixed(precision);
-  };
 
-  const navigate = useNavigate();
   const [showQR, setShowQR] = useState(false);
   const [showUsernameReg, setShowUsernameReg] = useState(false);
 
@@ -137,52 +115,31 @@ const Home = () => {
 
   return (
     <div className="space-y-6">
-      {/* Temporary Contract Debugger */}
-      <ContractDebugger />
       {/* Wallet Balance */}
       {isLoading ? (
         <BalanceSkeleton />
       ) : (
         <Card className="overflow-hidden dark:border-primary/20 border-primary/30">
-          <CardHeader className="bg-gradient-to-r from-primary to-accent text-white">
-            <CardTitle className="text-xl text-white flex items-center justify-between">
-              Your USDT Balance
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-white h-7 hover:bg-white/20"
-                onClick={() => setShowQR(true)}
-              >
-                <QrCode className="h-4 w-4 mr-1" /> Receive
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="p-4">
             <div className="text-center">
               {!isLoggedIn ? (
                 <div className="text-sm text-muted-foreground">
                   Connect wallet to view balance
                 </div>
               ) : tokens.length > 0 ? (
-                <div className="space-y-4">
-                  {/* USDT Balance */}
-                  {usdcBalance && (
-                    <div>
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <img
-                          src="/usdc-logo.svg"
-                          alt="USDC"
-                          className="w-8 h-8"
-                        />
-                        <div className="text-2xl font-bold">
-                          {formatBalanceWithoutDecimals(usdcBalance.value, usdcBalance.symbol)}
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        ≈ ${(Number(formatBalanceWithoutDecimals(usdcBalance.value)) * prices.usdc).toFixed(2)} USD
-                      </div>
+                <div className="space-y-2">
+                  {/* Total Combined Balance */}
+                  <div>
+                    <div className="text-2xl font-bold">
+                      ${tokens
+                        .filter(token => token.symbol === 'USDT' || token.symbol === 'USDC')
+                        .reduce((total, token) => total + getUSDValue(token.balance, token.symbol), 0)
+                        .toFixed(2)}
                     </div>
-                  )}
+                    <div className="text-sm text-muted-foreground">
+                      Total Balance
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground">
@@ -190,29 +147,32 @@ const Home = () => {
                 </div>
               )}
             </div>
-            <div className="flex justify-center gap-3 mt-4">
+            <div className="flex justify-center gap-2 mt-3">
               <Button
-                variant="secondary"
-                className="flex items-center gap-2 rounded-xl"
-                onClick={() => navigate("/app/claims")}
+                size="sm"
+                variant="outline"
+                className="flex items-center gap-1"
+                onClick={() => setShowQR(true)}
               >
-                <ArrowDown className="h-4 w-4" /> Claims
+                <QrCode className="h-3 w-3" /> Receive
               </Button>
               <Button
-                variant="secondary"
-                className="flex items-center gap-2 rounded-xl"
+                size="sm"
+                variant="outline"
+                className="flex items-center gap-1"
                 onClick={handleTopup}
                 disabled={isClaiming || !userClaimInfo.canClaim}
               >
-                <Droplets className="h-4 w-4" />
+                <Droplets className="h-3 w-3" />
                 {isClaiming ? "Claiming..." : "Topup"}
               </Button>
               <Button
-                variant="secondary"
-                className="flex items-center gap-2 rounded-xl"
+                size="sm"
+                variant="outline"
+                className="flex items-center gap-1"
                 onClick={handleOnramp}
               >
-                <CreditCard className="h-4 w-4" />
+                <CreditCard className="h-3 w-3" />
                 Onramp
               </Button>
             </div>
@@ -231,9 +191,9 @@ const Home = () => {
             color="bg-gradient-to-br from-primary to-accent"
           />
           <QuickAction
-            icon={BarChart2}
-            label="Stream Payment"
-            to="/app/streams"
+            icon={ArrowDown}
+            label="Claims"
+            to="/app/claims"
             color="bg-gradient-to-br from-blue-500 to-cyan-400"
           />
           <QuickAction
@@ -293,7 +253,7 @@ const Home = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">
-                        {formatBalanceWithoutDecimals(BigInt(Math.floor(token.balance * (token.symbol === 'USDT' ? 1000000 : 1000000))), token.symbol)}
+                        {token.balance.toFixed(2)} {token.symbol}
                       </p>
                     </div>
                   </div>

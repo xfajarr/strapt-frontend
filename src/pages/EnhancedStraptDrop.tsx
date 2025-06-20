@@ -178,9 +178,11 @@ const EnhancedStraptDrop = () => {
                     balance: token.balance,
                     icon: token.symbol === 'USDC'
                       ? '/usd-coin-usdc-logo.svg'
-                      : token.symbol === 'IDRX'
-                        ? '/IDRX BLUE COIN.svg'
-                        : undefined
+                      : token.symbol === 'USDT'
+                        ? '/assets/tether-usdt-seeklogo.svg'
+                        : token.symbol === 'IDRX'
+                          ? '/IDRX BLUE COIN.svg'
+                          : undefined
                   }))}
                   selectedToken={{
                     symbol: selectedToken.symbol,
@@ -188,9 +190,11 @@ const EnhancedStraptDrop = () => {
                     balance: selectedToken.balance,
                     icon: selectedToken.symbol === 'USDC'
                       ? '/usd-coin-usdc-logo.svg'
-                      : selectedToken.symbol === 'IDRX'
-                        ? '/IDRX BLUE COIN.svg'
-                        : undefined
+                      : selectedToken.symbol === 'USDT'
+                        ? '/assets/tether-usdt-seeklogo.svg'
+                        : selectedToken.symbol === 'IDRX'
+                          ? '/IDRX BLUE COIN.svg'
+                          : undefined
                   }}
                   onTokenChange={(token) => setTokenType(token.symbol as TokenType)}
                   className="w-full"

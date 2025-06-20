@@ -368,6 +368,8 @@ const EnhancedStraptDropClaim = () => {
                   <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
                     {getTokenSymbol(dropInfo.tokenAddress) === 'USDC' ? (
                       <img src="/usd-coin-usdc-logo.svg" alt="USDC" className="w-full h-full object-cover" />
+                    ) : getTokenSymbol(dropInfo.tokenAddress) === 'USDT' ? (
+                      <img src="/assets/tether-usdt-seeklogo.svg" alt="USDT" className="w-full h-full object-cover" />
                     ) : getTokenSymbol(dropInfo.tokenAddress) === 'IDRX' ? (
                       <img src="/IDRX BLUE COIN.svg" alt="IDRX" className="w-full h-full object-cover" />
                     ) : (
