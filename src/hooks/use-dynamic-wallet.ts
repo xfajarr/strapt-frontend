@@ -47,8 +47,7 @@ export function useDynamicWallet() {
   // Function to handle wallet connection
   const connectWallet = useCallback(async () => {
     try {
-      console.log('connectWallet called, SDK loaded:', sdkHasLoaded);
-
+      // Check if SDK has loaded
       if (!sdkHasLoaded) {
         toast.error('Wallet SDK is still loading. Please try again in a moment.');
         return false;
@@ -58,7 +57,6 @@ export function useDynamicWallet() {
       setShowAuthFlow(true);
       return true;
     } catch (error) {
-      console.error("Dynamic wallet connection error:", error);
       toast.error('Failed to connect wallet. Please try again.');
       return false;
     }
@@ -73,7 +71,6 @@ export function useDynamicWallet() {
       toast.success('Successfully disconnected wallet');
       return true;
     } catch (error) {
-      console.error("Dynamic wallet disconnection error:", error);
       toast.error('Failed to disconnect wallet. Please try again.');
       return false;
     }
@@ -89,7 +86,6 @@ export function useDynamicWallet() {
       const balance = await primaryWallet.getBalance();
       return balance;
     } catch (error) {
-      console.error("Error getting wallet balance:", error);
       return null;
     }
   }, [primaryWallet]);
@@ -103,8 +99,7 @@ export function useDynamicWallet() {
     try {
       const accounts = await primaryWallet.connector.getConnectedAccounts();
       return accounts;
-    } catch (error) {
-      console.error("Error getting connected accounts:", error);
+    } catch (error) {      
       return [];
     }
   }, [primaryWallet]);

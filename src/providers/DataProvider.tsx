@@ -2,14 +2,10 @@ import React, { createContext, useContext, useEffect, useState, ReactNode, useRe
 import { initDataServices, refreshAllData } from '@/services/DataService';
 import { useDynamicWallet } from '@/hooks/use-dynamic-wallet';
 import { useLocation } from 'react-router-dom';
+import { useDataContext } from './useDataContext';
 
-// Create context
-interface DataContextType {
-  isInitialized: boolean;
-  refreshAllData: () => void;
-}
-
-const DataContext = createContext<DataContextType | undefined>(undefined);
+// Import the context from a separate file instead of creating it here
+import { DataContext } from './DataContext';
 
 /**
  * Provider component that initializes data services
@@ -101,15 +97,4 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </DataContext.Provider>
   );
-};
-
-/**
- * Hook to use the data context
- */
-export const useDataContext = () => {
-  const context = useContext(DataContext);
-  if (context === undefined) {
-    throw new Error('useDataContext must be used within a DataProvider');
-  }
-  return context;
 };
