@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense, useCallback, memo, useEffect } from 'react';
-import { Copy, Moon, Sun, ChevronRight, LogOut, Shield, BarChart2, Users, Info, FileText, QrCode, UserPlus, Clock, CalendarClock } from 'lucide-react';
+import { Copy, Moon, Sun, ChevronRight, LogOut, Shield, BarChart2, Users, Info, FileText, QrCode, UserPlus, Clock, CalendarClock, History } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
@@ -36,7 +36,12 @@ const TabLoading = memo(() => (
 TabLoading.displayName = 'TabLoading';
 
 // Memoized menu items to prevent re-renders
-const menuItems = [
+const createMenuItems = (navigate: (path: string) => void) => [
+  {
+    title: 'My Transfers',
+    icon: History,
+    onClick: () => navigate('/app/my-transfers'),
+  },
   {
     title: 'Transaction History',
     icon: FileText,
@@ -46,11 +51,6 @@ const menuItems = [
     title: 'Protected Transfers',
     icon: Shield,
     onClick: () => console.log('Protected Transfers clicked'),
-  },
-  {
-    title: 'Streaming Payments',
-    icon: BarChart2,
-    onClick: () => console.log('Streaming Payments clicked'),
   },
   {
     title: 'Group Pools',
@@ -93,6 +93,13 @@ const OptimizedProfile = () => {
 
   // Get token balances
   const { isLoading: isLoadingTokens, idrxBalance } = useTokenBalances();
+
+  // Mock data for streams (since streams are deprecated)
+  const isLoadingStreams = false;
+  const activeStreamsCount = 0;
+
+  // Create menu items with navigation
+  const menuItems = createMenuItems(navigate);
 
 
 

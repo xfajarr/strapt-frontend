@@ -10,6 +10,7 @@ import { useTokenUtils } from './useTokenUtils';
 import { useTransactionState } from './useTransactionState';
 import { useErrorHandler } from './useErrorHandler';
 import { useClaimCodeUtils } from './useClaimCodeUtils';
+import { useCommonLoading } from './use-unified-loading';
 
 // Token types
 export type TokenType = 'USDC' | 'USDT';
@@ -60,6 +61,9 @@ export function useLinkTransfer() {
 
   const { handleError } = useErrorHandler();
   const { generateClaimCode, hashClaimCode } = useClaimCodeUtils();
+
+  // Use unified loading system for better UX
+  const loadingSystem = useCommonLoading();
 
   // Get contract configuration
   const linkTransferConfig = contractConfig.LinkTransfer;
@@ -454,6 +458,88 @@ export function useLinkTransfer() {
     }
   };
 
+  // Instant refund a link transfer (any pending transfer, regardless of expiry)
+  const instantRefund = async (transferId: string) => {
+    try {
+      setIsLoading(true);
+
+      if (!account) {
+        throw new Error('No wallet connected');
+      }
+
+      console.log('Instant refunding transfer:', transferId);
+
+      // For LinkTransferOptimized, we only have refundTransfer which requires expiry
+      // So we'll use the same function but provide better error handling
+      const { request } = await simulateContract(config, {
+        abi: LinkTransferABI,
+        address: LINK_TRANSFER_ADDRESS,
+        functionName: 'refundTransfer',
+        args: [transferId as `0x${string}`],
+        account: account,
+      });
+
+      console.log('Instant refund simulation successful, executing transaction...');
+
+      // Execute the transaction
+      const txHash = await writeContract(config, request);
+      console.log('Instant refund transaction submitted:', txHash);
+
+      // Wait for confirmation
+      const receipt = await waitForTransactionReceipt(config, {
+        hash: txHash,
+        confirmations: 1,
+      });
+
+      console.log('Instant refund transaction confirmed:', receipt);
+
+      return {
+        txHash,
+        receipt
+      };
+
+    } catch (error) {
+      console.error('Error instant refunding transfer:', error);
+
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        if (error.message.includes('TransferNotExpired')) {
+          throw new Error('Transfer has not expired yet. You can only refund expired transfers.');
+        } else if (error.message.includes('TransferNotRefundable')) {
+          throw new Error('Transfer cannot be refunded. It may have already been claimed or refunded.');
+        } else if (error.message.includes('NotSender')) {
+          throw new Error('Only the sender can refund this transfer.');
+        }
+      }
+
+      handleError(error, 'Failed to refund transfer');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Get transfers by sender (for transfer management)
+  const getTransfersBySender = async (senderAddress: string): Promise<string[]> => {
+    try {
+      const result = await readContract(config, {
+        abi: LinkTransferABI,
+        address: LINK_TRANSFER_ADDRESS,
+        functionName: 'getTransfersBySender',
+        args: [senderAddress as `0x${string}`],
+      });
+      return result as string[];
+    } catch (error) {
+      console.error('Error getting transfers by sender:', error);
+      return [];
+    }
+  };
+
+  // Check if transfer is expired
+  const isTransferExpired = (expiry: number): boolean => {
+    return Date.now() / 1000 > expiry;
+  };
+
   // Check if transfer is password protected
   const isPasswordProtected = async (transferId: string): Promise<number> => {
     try {
@@ -556,9 +642,12 @@ export function useLinkTransfer() {
     createLinkTransfer,
     claimTransfer,
     refundTransfer,
+    instantRefund,
     isPasswordProtected,
     isTransferClaimable,
     getTransferDetails,
+    getTransfersBySender,
+    isTransferExpired,
     generateClaimCode,
     hashClaimCode,
     checkAllowance,

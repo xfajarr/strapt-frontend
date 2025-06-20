@@ -26,7 +26,7 @@ import { parseUnits, decodeEventLog } from 'viem';
 import { toast } from 'sonner';
 import { readContract, simulateContract, writeContract, waitForTransactionReceipt, getAccount } from 'wagmi/actions';
 import { config } from '@/providers/DynamicProvider';
-import StraptDropABI from '@/contracts/StraptDrop.json';
+import StraptGiftABI from '@/contracts/StraptGift.json';
 import contractConfig from '@/contracts/contract-config.json';
 import USDCABI from '@/contracts/MockUSDC.json';
 import USDTABI from '@/contracts/MockUSDT.json';
@@ -34,15 +34,15 @@ import { useDynamicWallet } from './use-dynamic-wallet';
 import { useTokenBalances } from './use-token-balances';
 
 // Contract addresses from config
-const STRAPT_DROP_ADDRESS = contractConfig.StraptDrop.address as `0x${string}`;
-const USDC_ADDRESS = contractConfig.StraptDrop.supportedTokens.USDC as `0x${string}`;
-const IDRX_ADDRESS = contractConfig.StraptDrop.supportedTokens.IDRX as `0x${string}`;
+const STRAPT_GIFT_ADDRESS = contractConfig.StraptGift.address as `0x${string}`;
+const USDC_ADDRESS = contractConfig.StraptGift.supportedTokens.USDC as `0x${string}`;
+const USDT_ADDRESS = contractConfig.StraptGift.supportedTokens.USDT as `0x${string}`;
 
 // Token types
 export type TokenType = 'USDC' | 'USDT';
 
-// Drop info type
-export interface DropInfo {
+// Gift info type
+export interface GiftInfo {
   creator: `0x${string}`;
   tokenAddress: `0x${string}`;
   totalAmount: bigint;
@@ -55,6 +55,9 @@ export interface DropInfo {
   message: string;
   isActive: boolean;
 }
+
+// Keep DropInfo as alias for backward compatibility
+export type DropInfo = GiftInfo;
 
 // Define interfaces for event args
 interface EventArgs {
@@ -74,7 +77,7 @@ interface DropClaimedArgs extends EventArgs {
   amount: bigint;
 }
 
-export function useStraptDrop() {
+export function useStraptGift() {
   const [isLoading, setIsLoading] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);

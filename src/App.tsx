@@ -26,9 +26,10 @@ const Home = lazy(() => import("./pages/Home"));
 const Transfer = lazy(() => import("./pages/Transfer"));
 
 const Pools = lazy(() => import("./pages/Pools"));
-const StraptDrop = lazy(() => import("./pages/EnhancedStraptDrop"));
-const StraptDropClaim = lazy(() => import("./pages/EnhancedStraptDropClaim"));
-const MyDrops = lazy(() => import("./pages/OptimizedMyDrops"));
+const StraptGift = lazy(() => import("./pages/EnhancedStraptGift"));
+const StraptGiftClaim = lazy(() => import("./pages/EnhancedStraptGiftClaim"));
+const MyGifts = lazy(() => import("./pages/OptimizedMyGifts"));
+const MyTransfers = lazy(() => import("./pages/MyTransfers"));
 const Profile = lazy(() => import("./pages/OptimizedProfile"));
 const Claims = lazy(() => import("./pages/Claims"));
 const Savings = lazy(() => import("./pages/Savings"));
@@ -88,24 +89,45 @@ const App = () => {
                           <Pools />
                         </Suspense>
                       } />
+                      <Route path="strapt-gift" element={
+                        <Suspense fallback={<PageLoading />}>
+                          <StraptGift />
+                        </Suspense>
+                      } />
+                      <Route path="strapt-gift/claim/:id?" element={
+                        <Suspense fallback={<PageLoading />}>
+                          <StraptGiftClaim />
+                        </Suspense>
+                      } />
+                      <Route path="strapt-gift/my-gifts" element={
+                        <Suspense fallback={<PageLoading />}>
+                          <MyGifts />
+                        </Suspense>
+                      } />
+                      {/* Backward compatibility routes */}
                       <Route path="strapt-drop" element={
                         <Suspense fallback={<PageLoading />}>
-                          <StraptDrop />
+                          <StraptGift />
                         </Suspense>
                       } />
                       <Route path="strapt-drop/claim/:id?" element={
                         <Suspense fallback={<PageLoading />}>
-                          <StraptDropClaim />
+                          <StraptGiftClaim />
                         </Suspense>
                       } />
                       <Route path="strapt-drop/my-drops" element={
                         <Suspense fallback={<PageLoading />}>
-                          <MyDrops />
+                          <MyGifts />
                         </Suspense>
                       } />
                       <Route path="profile" element={
                         <Suspense fallback={<PageLoading />}>
                           <Profile />
+                        </Suspense>
+                      } />
+                      <Route path="my-transfers" element={
+                        <Suspense fallback={<PageLoading />}>
+                          <MyTransfers />
                         </Suspense>
                       } />
                       <Route path="claims" element={

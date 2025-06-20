@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Shield, BarChart2, Users, MessageCircle, CheckCircle, Zap, Smartphone, Droplets, Wallet, Loader2 } from 'lucide-react';
 import { useDynamicWallet } from '@/hooks/use-dynamic-wallet';
 import { toast } from 'sonner';
+import {motion} from "framer-motion";
 
 const Index = () => {
   const { isLoggedIn, connectWallet, isLoading: walletLoading } = useDynamicWallet();
@@ -71,7 +72,7 @@ const Index = () => {
                 Send It, Stream It, STRAPT It.
               </h1>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
-                The fastest way to move crypto — no addresses, no stress. Powered by IDRX.
+                The fastest and easiest way to send, receive and manage your crypto.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-8">
                 <Button
@@ -251,7 +252,7 @@ const Index = () => {
               <div className="flex flex-col items-center">
                 <div className="mb-4 text-center">
                   <div className="flex items-center justify-center">
-                    <h3 className="font-bold text-lg text-primary">STRAPT Drop</h3>
+                    <h3 className="font-bold text-lg text-primary">STRAPT Gift</h3>
                     <div className="ml-2 bg-gradient-to-r from-primary to-accent text-white text-xs font-bold px-2 py-0.5 rounded-full">
                       Featured
                     </div>

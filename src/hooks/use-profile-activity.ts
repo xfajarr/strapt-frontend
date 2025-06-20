@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useDynamicWallet } from './use-dynamic-wallet';
 import { useSentTransfersData, useReceivedTransfersData } from '@/services/TransfersDataService';
 
-import { useStraptDrop } from './use-strapt-drop';
+import { useStraptGift } from './use-strapt-gift';
 
 // Define the activity type
 export interface ProfileActivity {
@@ -30,32 +30,32 @@ export function useProfileActivity() {
 
 
 
-  // Get STRAPT drops data - lazy load
-  const { getUserCreatedDrops, isLoadingUserDrops } = useStraptDrop();
-  const [drops, setDrops] = useState<any[]>([]);
-  const [dropsLoaded, setDropsLoaded] = useState(false);
+  // Get STRAPT gifts data - lazy load
+  const { getUserCreatedGifts, isLoadingUserGifts } = useStraptGift();
+  const [gifts, setGifts] = useState<any[]>([]);
+  const [giftsLoaded, setGiftsLoaded] = useState(false);
 
-  // Lazy fetch drops data only when needed
+  // Lazy fetch gifts data only when needed
   useEffect(() => {
-    const fetchDrops = async () => {
-      if (!address || dropsLoaded) return;
+    const fetchGifts = async () => {
+      if (!address || giftsLoaded) return;
 
-      // Only load drops after other data is loaded to improve initial performance
+      // Only load gifts after other data is loaded to improve initial performance
       if (!isSentLoading && !isReceivedLoading) {
         try {
-          const userDrops = await getUserCreatedDrops();
-          setDrops(userDrops || []);
-          setDropsLoaded(true);
+          const userGifts = await getUserCreatedGifts();
+          setGifts(userGifts || []);
+          setGiftsLoaded(true);
         } catch (error) {
-          console.error('Error fetching user drops:', error);
-          setDrops([]);
-          setDropsLoaded(true);
+          console.error('Error fetching user gifts:', error);
+          setGifts([]);
+          setGiftsLoaded(true);
         }
       }
     };
 
-    fetchDrops();
-  }, [address, getUserCreatedDrops, dropsLoaded, isSentLoading, isReceivedLoading]);
+    fetchGifts();
+  }, [address, getUserCreatedGifts, giftsLoaded, isSentLoading, isReceivedLoading]);
 
   // Combine all activity data
   useEffect(() => {
@@ -67,7 +67,7 @@ export function useProfileActivity() {
       }
 
       // Check if all data is loaded
-      if (isSentLoading || isReceivedLoading || isLoadingUserDrops) {
+      if (isSentLoading || isReceivedLoading || isLoadingUserGifts) {
         return;
       }
 
@@ -105,17 +105,17 @@ export function useProfileActivity() {
 
 
 
-      // Add drops
-      if (drops && drops.length > 0) {
-        drops.forEach(drop => {
+      // Add gifts
+      if (gifts && gifts.length > 0) {
+        gifts.forEach(gift => {
           allActivities.push({
-            id: `drop-${drop.id}`,
+            id: `gift-${gift.id}`,
             type: 'drop',
-            title: `STRAPT Drop created`,
-            amount: `${Number(drop.info.totalAmount) / (10 ** (drop.info.tokenAddress === '0xD63029C1a3dA68b51c67c6D1DeC3DEe50D681661' ? 2 : 6))} ${drop.info.tokenAddress === '0xD63029C1a3dA68b51c67c6D1DeC3DEe50D681661' ? 'IDRX' : 'USDC'}`,
-            status: drop.info.isActive ? 'active' :
-                   drop.info.remainingAmount === BigInt(0) ? 'completed' : 'pending',
-            timestamp: new Date(Number(drop.info.expiryTime) * 1000 - 86400000).toISOString(), // 24 hours before expiry
+            title: `STRAPT Gift created`,
+            amount: `${Number(gift.info?.totalAmount || 0) / (10 ** 6)} USDC`, // Assuming USDC for now
+            status: gift.info?.isActive ? 'active' :
+                   gift.info?.remainingAmount === BigInt(0) ? 'completed' : 'pending',
+            timestamp: new Date(Number(gift.info?.expiryTime || 0) * 1000 - 86400000).toISOString(), // 24 hours before expiry
           });
         });
       }
@@ -133,10 +133,10 @@ export function useProfileActivity() {
     address,
     sentTransfers,
     receivedTransfers,
-    drops,
+    gifts,
     isSentLoading,
     isReceivedLoading,
-    isLoadingUserDrops
+    isLoadingUserGifts
   ]);
 
   return { activities, isLoading };

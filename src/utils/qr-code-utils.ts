@@ -13,6 +13,16 @@ export const generateDropClaimLink = (dropId: string): string => {
 };
 
 /**
+ * Generate a consistent STRAPT Gift claim link
+ * @param giftId The STRAPT Gift ID
+ * @returns A properly formatted URL for claiming the gift
+ */
+export const generateGiftClaimLink = (giftId: string): string => {
+  const baseUrl = window.location.origin;
+  return `${baseUrl}/app/strapt-gift/claim?id=${giftId}`;
+};
+
+/**
  * Generate a consistent transfer claim link
  * @param transferId The transfer ID
  * @param claimCode Optional claim code

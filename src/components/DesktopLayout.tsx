@@ -9,7 +9,8 @@ import {
   Wallet,
   Menu,
   Droplets,
-  X
+  X,
+  History
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -28,7 +29,8 @@ const DesktopLayout = () => {
   const navItems = [
     { name: 'Home', path: '', icon: Home },
     { name: 'Transfer', path: 'transfer', icon: ArrowUp },
-    { name: 'STRAPT Drop', path: 'strapt-drop', icon: Users },
+    { name: 'My Transfers', path: 'my-transfers', icon: History },
+    { name: 'STRAPT Gift', path: 'strapt-gift', icon: Users },
     { name: 'Claims', path: 'claims', icon: Shield },
     { name: 'Savings', path: 'savings', icon: Wallet },
   ];

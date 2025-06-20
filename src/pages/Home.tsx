@@ -21,7 +21,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import EnhancedUsernameRegistration from "@/components/EnhancedUsernameRegistration";
 import QRCode from "@/components/QRCode";
@@ -37,8 +43,8 @@ import toast from "@/utils/toast-deduplication";
 const Home = () => {
   const { isLoggedIn, address } = useDynamicWallet();
   const [prices, setPrices] = useState<{ [key: string]: number }>({
-    'usdc': 1.0, // USDC is pegged to USD
-    'usdt': 1.0 // USDT is pegged to USD
+    usdc: 1.0, // USDC is pegged to USD
+    usdt: 1.0, // USDT is pegged to USD
   });
 
   // Get token balances
@@ -49,8 +55,8 @@ const Home = () => {
     // For a real app, you would fetch prices from an API
     // For this demo, we'll use hardcoded prices
     setPrices({
-      'usdc': 1.0, // USDC is pegged to USD
-      'usdt': 1.0 // USDT is pegged to USD
+      usdc: 1.0, // USDC is pegged to USD
+      usdt: 1.0, // USDT is pegged to USD
     });
   }, []);
 
@@ -61,14 +67,13 @@ const Home = () => {
     return balance * price;
   };
 
-
   const [showQR, setShowQR] = useState(false);
   const [showUsernameReg, setShowUsernameReg] = useState(false);
 
   // Request funds state
-  const [requestAmount, setRequestAmount] = useState('');
-  const [requestToken, setRequestToken] = useState('USDT');
-  const [requestMessage, setRequestMessage] = useState('');
+  const [requestAmount, setRequestAmount] = useState("");
+  const [requestToken, setRequestToken] = useState("USDT");
+  const [requestMessage, setRequestMessage] = useState("");
 
   // USDC Faucet functionality
   const { claimTokens, isClaiming, userClaimInfo } = useUSDCFaucet();
@@ -83,13 +88,13 @@ const Home = () => {
       if (success) {
         // Token balances will be automatically refreshed
         toast.success("USDC claimed successfully!", {
-          description: "Your balance will be updated shortly"
+          description: "Your balance will be updated shortly",
         });
       }
     } catch (error) {
       console.error("Error claiming USDC:", error);
       toast.error("Failed to claim USDC", {
-        description: "Please try again later"
+        description: "Please try again later",
       });
     }
   };
@@ -97,13 +102,13 @@ const Home = () => {
   const handleOnramp = () => {
     // Placeholder for onramp functionality
     toast.success("Onramp feature coming soon!", {
-      description: "This will integrate with payment providers"
+      description: "This will integrate with payment providers",
     });
   };
 
   const generateRequestQR = () => {
     const requestData = {
-      type: 'request',
+      type: "request",
       address,
       amount: requestAmount,
       token: requestToken,
@@ -134,9 +139,17 @@ const Home = () => {
                       Total Balance
                     </div>
                     <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">
-                      ${tokens
-                        .filter(token => token.symbol === 'USDT' || token.symbol === 'USDC')
-                        .reduce((total, token) => total + getUSDValue(token.balance, token.symbol), 0)
+                      $
+                      {tokens
+                        .filter(
+                          (token) =>
+                            token.symbol === "USDT" || token.symbol === "USDC"
+                        )
+                        .reduce(
+                          (total, token) =>
+                            total + getUSDValue(token.balance, token.symbol),
+                          0
+                        )
                         .toFixed(2)}
                     </div>
                   </div>
@@ -196,10 +209,20 @@ const Home = () => {
             to="/app/claims"
             color="bg-gradient-to-br from-blue-500 to-cyan-400"
           />
-          <QuickAction
+          {/* <QuickAction
             icon={UserPlus}
             label="Set your STRAPT ID"
             onClick={() => setShowUsernameReg(true)}
+            color="bg-gradient-to-br from-emerald-500 to-green-400"
+          /> */}
+          <QuickAction
+            icon={UserPlus}
+            label="Set your STRAPT ID"
+            onClick={() =>
+              toast.info("Coming soon!", {
+                description: "STRAPT ID registration will be available soon",
+              })
+            }
             color="bg-gradient-to-br from-emerald-500 to-green-400"
           />
         </div>
@@ -236,29 +259,39 @@ const Home = () => {
             ) : (
               <div className="space-y-3">
                 {/* Current Tokens */}
-                {tokens.filter(token => token.symbol === 'USDT' || token.symbol === 'USDC').map((token) => (
-                  <div key={token.symbol} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={token.icon}
-                        alt={token.symbol}
-                        className="w-8 h-8 rounded-full"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                      <div>
-                        <p className="font-medium">{token.symbol}</p>
-                        <p className="text-sm text-muted-foreground">{token.name}</p>
+                {tokens
+                  .filter(
+                    (token) =>
+                      token.symbol === "USDT" || token.symbol === "USDC"
+                  )
+                  .map((token) => (
+                    <div
+                      key={token.symbol}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={token.icon}
+                          alt={token.symbol}
+                          className="w-8 h-8 rounded-full"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                        <div>
+                          <p className="font-medium">{token.symbol}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {token.name}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          {token.balance.toFixed(2)} {token.symbol}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">
-                        {token.balance.toFixed(2)} {token.symbol}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
 
                 {/* Coming Soon Section */}
                 <div className="relative mt-4 pt-3 border-t border-border/50">
@@ -270,7 +303,9 @@ const Home = () => {
                           <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                           Coming Soon
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">More tokens</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          More tokens
+                        </p>
                       </div>
                     </div>
 
@@ -280,11 +315,15 @@ const Home = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">DAI</span>
+                            <span className="text-white text-xs font-bold">
+                              DAI
+                            </span>
                           </div>
                           <div>
                             <p className="font-medium">DAI</p>
-                            <p className="text-sm text-muted-foreground">Dai Stablecoin</p>
+                            <p className="text-sm text-muted-foreground">
+                              Dai Stablecoin
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -296,11 +335,15 @@ const Home = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">USDCe</span>
+                            <span className="text-white text-xs font-bold">
+                              USDCe
+                            </span>
                           </div>
                           <div>
                             <p className="font-medium">USDC.e</p>
-                            <p className="text-sm text-muted-foreground">Bridged USDC</p>
+                            <p className="text-sm text-muted-foreground">
+                              Bridged USDC
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -312,11 +355,15 @@ const Home = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">FRAX</span>
+                            <span className="text-white text-xs font-bold">
+                              FRAX
+                            </span>
                           </div>
                           <div>
                             <p className="font-medium">FRAX</p>
-                            <p className="text-sm text-muted-foreground">Frax Stablecoin</p>
+                            <p className="text-sm text-muted-foreground">
+                              Frax Stablecoin
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -406,10 +453,12 @@ const Home = () => {
 
             <TabsContent value="receive" className="space-y-4">
               <div className="flex flex-col items-center justify-center space-y-4">
-                <QRCode value={address || ''} size={200} />
+                <QRCode value={address || ""} size={200} />
                 <p className="text-sm font-medium">Your Wallet Address</p>
                 <p className="text-xs text-muted-foreground text-center">
-                  {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}
+                  {address
+                    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+                    : "Not connected"}
                 </p>
                 <div className="flex flex-col w-full gap-2">
                   <Button
@@ -471,9 +520,13 @@ const Home = () => {
                 {requestAmount && (
                   <div className="flex flex-col items-center justify-center space-y-4 pt-4">
                     <QRCode value={generateRequestQR()} size={200} />
-                    <p className="text-sm font-medium">Request: {requestAmount} {requestToken}</p>
+                    <p className="text-sm font-medium">
+                      Request: {requestAmount} {requestToken}
+                    </p>
                     {requestMessage && (
-                      <p className="text-xs text-muted-foreground text-center">"{requestMessage}"</p>
+                      <p className="text-xs text-muted-foreground text-center">
+                        "{requestMessage}"
+                      </p>
                     )}
                     <Button
                       variant="outline"
@@ -496,7 +549,9 @@ const Home = () => {
       {/* Username Registration Dialog */}
       <Dialog open={showUsernameReg} onOpenChange={setShowUsernameReg}>
         <DialogContent className="p-0 overflow-hidden max-w-md">
-          <EnhancedUsernameRegistration onComplete={handleCompleteRegistration} />
+          <EnhancedUsernameRegistration
+            onComplete={handleCompleteRegistration}
+          />
         </DialogContent>
       </Dialog>
     </div>

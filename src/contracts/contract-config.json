@@ -9,8 +9,8 @@
     "feeInBasisPoints": 10,
     "feeCollector": "0x02cAf2aE3CA81dC0b5cF7B846625B5A4f07bBbcb"
   },
-  "StraptDrop": {
-    "address": "0x3d183CDCbF78BA6e39eb0e51C44d233265786e0A",
+  "StraptGift": {
+    "address": "0xC9407EA93EB415b5AD449F0fA65e9E7a30af30b9",
     "network": "mantleSepoliaTestnet",
     "supportedTokens": {
       "USDC": "0xf6f8CF56DF9caD9Cd2248A566755b8d0e56a5bEe",
