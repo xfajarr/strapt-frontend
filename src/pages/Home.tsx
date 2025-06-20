@@ -119,7 +119,7 @@ const Home = () => {
       {isLoading ? (
         <BalanceSkeleton />
       ) : (
-        <Card className="overflow-hidden dark:border-primary/20 border-primary/30">
+        <Card className="overflow-hidden border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-background">
           <CardContent className="p-4">
             <div className="text-center">
               {!isLoggedIn ? (
@@ -130,14 +130,14 @@ const Home = () => {
                 <div className="space-y-2">
                   {/* Total Combined Balance */}
                   <div>
-                    <div className="text-2xl font-bold">
+                    <div className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">
+                      Total Balance
+                    </div>
+                    <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">
                       ${tokens
                         .filter(token => token.symbol === 'USDT' || token.symbol === 'USDC')
                         .reduce((total, token) => total + getUSDValue(token.balance, token.symbol), 0)
                         .toFixed(2)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Total Balance
                     </div>
                   </div>
                 </div>
@@ -147,11 +147,11 @@ const Home = () => {
                 </div>
               )}
             </div>
-            <div className="flex justify-center gap-2 mt-3">
+            <div className="flex justify-center gap-2 mt-4">
               <Button
                 size="sm"
                 variant="outline"
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950/30"
                 onClick={() => setShowQR(true)}
               >
                 <QrCode className="h-3 w-3" /> Receive
@@ -159,7 +159,7 @@ const Home = () => {
               <Button
                 size="sm"
                 variant="outline"
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950/30"
                 onClick={handleTopup}
                 disabled={isClaiming || !userClaimInfo.canClaim}
               >
@@ -169,7 +169,7 @@ const Home = () => {
               <Button
                 size="sm"
                 variant="outline"
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950/30"
                 onClick={handleOnramp}
               >
                 <CreditCard className="h-3 w-3" />

@@ -2,10 +2,12 @@ import React, { createContext, useContext, useEffect, useState, ReactNode, useRe
 import { initDataServices, refreshAllData } from '@/services/DataService';
 import { useDynamicWallet } from '@/hooks/use-dynamic-wallet';
 import { useLocation } from 'react-router-dom';
-import { useDataContext } from './useDataContext';
 
 // Import the context from a separate file instead of creating it here
 import { DataContext } from './DataContext';
+
+// Export the useDataContext hook
+export { useDataContext } from './useDataContext';
 
 /**
  * Provider component that initializes data services

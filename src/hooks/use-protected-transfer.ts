@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { writeContract, waitForTransactionReceipt } from 'wagmi/actions';
 import { config } from '@/providers/DynamicProvider';
 import ProtectedTransferABI from '@/contracts/ProtectedTransfer.json';
-import USDCABI from '@/contracts/USDCMock.json';
+import USDCABI from '@/contracts/MockUSDC.json';
 import IDRXABI from '@/contracts/IDRX.json';
 
 // Contract addresses

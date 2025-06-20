@@ -208,7 +208,7 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
 
       // Get token ABI based on selected token
       const tokenABI = selectedToken.symbol === 'USDC'
-        ? (await import('@/contracts/USDCMock.json')).default.abi
+        ? (await import('@/contracts/MockUSDC.json')).default.abi
         : (await import('@/contracts/IDRX.json')).default.abi;
 
       // Parse amount with correct decimals
@@ -311,7 +311,7 @@ export const TransferProvider = ({ children }: { children: ReactNode }) => {
 
           // Get token ABI based on selected token
           const tokenABI = selectedToken.symbol === 'USDC'
-            ? (await import('@/contracts/USDCMock.json')).default.abi
+            ? (await import('@/contracts/MockUSDC.json')).default.abi
             : (await import('@/contracts/IDRX.json')).default.abi;
 
           // Parse amount with correct decimals

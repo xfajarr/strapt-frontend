@@ -5,7 +5,7 @@ import { readContract, simulateContract, writeContract, waitForTransactionReceip
 import { config } from '@/providers/DynamicProvider';
 import StraptDropABI from '@/contracts/StraptDrop.json';
 import contractConfig from '@/contracts/contract-config.json';
-import USDCABI from '@/contracts/USDCMock.json';
+import USDCABI from '@/contracts/MockUSDC.json';
 import IDRXABI from '@/contracts/IDRX.json';
 import { useDynamicWallet } from './use-dynamic-wallet';
 import { useTokenBalances } from './use-token-balances';
